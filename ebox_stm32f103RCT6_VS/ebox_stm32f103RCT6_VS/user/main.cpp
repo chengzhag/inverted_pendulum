@@ -12,27 +12,64 @@
  */
 
 #include "ebox.h"
-#include "ds18b20.h"
-Ds18b20 ds(&PA0);
+#include "encoder.h"
+
+#define ROTARY_ENCODER_TYPE long long
+class RotaryEncoder
+{
+	ROTARY_ENCODER_TYPE position;
+	Encoder encoder;
+	Exti extiA;
+	void eventA() {
+		switch (encoder.read_encoder())
+		{
+		case 0:
+			break;
+		case 1:
+			position--;
+			break;
+		case 2:
+			position++;
+			break;
+		}
+	}
+public:
+	RotaryEncoder(Gpio *Apin, Gpio *Bpin) :
+		encoder(Apin, Bpin) ,
+		extiA(Apin, EXTI_Trigger_Falling),
+		position(0)
+	{
+		extiA.begin();
+		extiA.attach(this,&RotaryEncoder::eventA);
+		extiA.interrupt(ENABLE);
+	}
+	ROTARY_ENCODER_TYPE getPosition() 
+	{
+		return position;
+	}
+	void resetPosition() 
+	{
+		position = 0;
+	}
+
+};
+
+RotaryEncoder encoder1(&PA8, &PA7);
+
 void setup()
 {
-    int ret;
     ebox_init();
     uart1.begin(115200);
-    PB8.mode(OUTPUT_PP);
-    ret = ds.begin();
-    uart1.printf("%d\n",ret);
-    
+  
 }
 int main(void)
 {
-    float temper;
     setup();
     while(1)
     {
-        temper = ds.get_temp();
-        uart1.printf("%f\n",temper);
-        delay_ms(1000);
+		
+        uart1.printf("%ld\n", encoder1.getPosition());
+        delay_ms(50);
 
     }
 

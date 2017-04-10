@@ -95,7 +95,7 @@
         </KeyValue>
         <KeyValue>
           <Key>com.sysprogs.jlink.resetafterload</Key>
-          <Value />
+          <Value>mon reset</Value>
         </KeyValue>
         <KeyValue>
           <Key>com.sysprogs.jlink.livememoryengine</Key>
