@@ -12,22 +12,23 @@
  */
 
 #include "ebox.h"
-#include "encoder.h"
 
 #define ROTARY_ENCODER_TYPE long long
 class RotaryEncoder
 {
 	ROTARY_ENCODER_TYPE position;
-	Encoder encoder;
+	Gpio *a_pin;
+	Gpio *b_pin;
 	Exti extiA;
 	void eventA() {
-		switch (encoder.read_encoder())
+		int state = a_pin->read() << 1 | b_pin->read();
+		switch (state)
 		{
 		case 0:
-			break;
-		case 1:
+		case 3:
 			position--;
 			break;
+		case 1:
 		case 2:
 			position++;
 			break;
@@ -35,13 +36,14 @@ class RotaryEncoder
 	}
 public:
 	RotaryEncoder(Gpio *Apin, Gpio *Bpin) :
-		encoder(Apin, Bpin) ,
-		extiA(Apin, EXTI_Trigger_Falling),
+		a_pin(Apin), b_pin(Bpin),
+		extiA(Apin, EXTI_Trigger_Rising_Falling),
 		position(0)
 	{
 		extiA.begin();
 		extiA.attach(this,&RotaryEncoder::eventA);
 		extiA.interrupt(ENABLE);
+		Bpin->mode(INPUT);
 	}
 	ROTARY_ENCODER_TYPE getPosition() 
 	{
@@ -62,14 +64,18 @@ void setup()
     uart1.begin(115200);
   
 }
+
 int main(void)
 {
     setup();
+	long long oldPos = 0, nowPos = 0;
+
     while(1)
     {
-		
-        uart1.printf("%ld\n", encoder1.getPosition());
-        delay_ms(50);
+		nowPos = encoder1.getPosition();
+        uart1.printf("%ld\n", nowPos- oldPos);
+		oldPos = nowPos;
+        delay_ms(100);
 
     }
 
