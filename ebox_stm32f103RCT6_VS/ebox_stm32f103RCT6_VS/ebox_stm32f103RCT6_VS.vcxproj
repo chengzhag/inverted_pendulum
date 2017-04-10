@@ -85,6 +85,7 @@
     <ClCompile Include="common\edriver\ds18b20.cpp" />
     <ClCompile Include="common\edriver\DS3231.cpp" />
     <ClCompile Include="common\edriver\encoder.cpp" />
+    <ClCompile Include="common\edriver\encoder_exti.cpp" />
     <ClCompile Include="common\edriver\fm25v.cpp" />
     <ClCompile Include="common\edriver\FT800.cpp" />
     <ClCompile Include="common\edriver\GP2Y1051.cpp" />
@@ -201,6 +202,7 @@
     <ClInclude Include="common\edriver\ds18b20.h" />
     <ClInclude Include="common\edriver\DS3231.h" />
     <ClInclude Include="common\edriver\encoder.h" />
+    <ClInclude Include="common\edriver\encoder_exti.h" />
     <ClInclude Include="common\edriver\fm25v.h" />
     <ClInclude Include="common\edriver\font.h" />
     <ClInclude Include="common\edriver\FT800.h" />

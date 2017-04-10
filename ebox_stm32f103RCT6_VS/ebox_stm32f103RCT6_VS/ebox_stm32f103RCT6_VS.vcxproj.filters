@@ -647,6 +647,9 @@
     <ClCompile Include="common\edriver\MPU6050.cpp">
       <Filter>Source files\common\edriver</Filter>
     </ClCompile>
+    <ClCompile Include="common\edriver\encoder_exti.cpp">
+      <Filter>Source files\common\edriver</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\bigiot\bigiot.h">
@@ -1223,6 +1226,9 @@
       <Filter>Header files\user</Filter>
     </ClInclude>
     <ClInclude Include="common\edriver\MPU6050.h">
+      <Filter>Header files\common\edriver</Filter>
+    </ClInclude>
+    <ClInclude Include="common\edriver\encoder_exti.h">
       <Filter>Header files\common\edriver</Filter>
     </ClInclude>
   </ItemGroup>
