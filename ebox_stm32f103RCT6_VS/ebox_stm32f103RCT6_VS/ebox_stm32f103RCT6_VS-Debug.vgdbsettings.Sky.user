@@ -1,0 +1,28 @@
+<?xml version="1.0"?>
+<VisualGDBUserPreferences xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema">
+  <UserDefinedVariableValues />
+  <DebugPreferences xsi:type="com.visualgdb.debug.embedded.preferences">
+    <CatchpointConfiguration>
+      <Throw>false</Throw>
+      <Rethrow>false</Rethrow>
+      <Catch>false</Catch>
+      <Exec>false</Exec>
+      <Fork>false</Fork>
+      <Vfork>false</Vfork>
+      <Syscalls />
+    </CatchpointConfiguration>
+    <FavoriteEmbeddedRegisters />
+    <LiveVariables>
+      <LiveVariable>
+        <Expression>testY</Expression>
+        <Type>Float32</Type>
+        <Enabled>true</Enabled>
+        <Breakpoint>
+          <ComparisonMode>Equals</ComparisonMode>
+          <Enabled>false</Enabled>
+        </Breakpoint>
+        <Plot>false</Plot>
+      </LiveVariable>
+    </LiveVariables>
+  </DebugPreferences>
+</VisualGDBUserPreferences>
