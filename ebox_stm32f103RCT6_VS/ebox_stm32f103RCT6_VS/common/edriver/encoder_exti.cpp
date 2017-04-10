@@ -44,7 +44,6 @@ EncoderExti::EncoderExti(Gpio *Apin, Gpio *Bpin) :
 	extiB.begin();
 	extiB.attach(this, &EncoderExti::eventB);
 	extiB.interrupt(ENABLE);
-	//Bpin->mode(INPUT);
 }
 
 ROTARY_ENCODER_TYPE EncoderExti::getPosition()

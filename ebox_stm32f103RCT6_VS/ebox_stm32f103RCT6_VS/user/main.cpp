@@ -17,6 +17,7 @@
 #include "task.h"
 #include "queue.h"
 #include "led.h"
+#include "encoder_motor.h"
 
 EncoderExti encoder1(&PA6, &PA7);
 Led led1(&PA8,1);

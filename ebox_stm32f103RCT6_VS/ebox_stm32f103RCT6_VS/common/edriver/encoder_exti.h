@@ -1,5 +1,5 @@
-#ifndef  ENCODER_EXTI
-#define  ENCODER_EXTI
+#ifndef  __ENCODER_EXTI
+#define  __ENCODER_EXTI
 
 #include "ebox.h"
 

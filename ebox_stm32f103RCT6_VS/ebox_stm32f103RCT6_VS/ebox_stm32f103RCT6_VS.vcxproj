@@ -86,6 +86,7 @@
     <ClCompile Include="common\edriver\DS3231.cpp" />
     <ClCompile Include="common\edriver\encoder.cpp" />
     <ClCompile Include="common\edriver\encoder_exti.cpp" />
+    <ClCompile Include="common\edriver\encoder_motor.cpp" />
     <ClCompile Include="common\edriver\fm25v.cpp" />
     <ClCompile Include="common\edriver\FT800.cpp" />
     <ClCompile Include="common\edriver\GP2Y1051.cpp" />
@@ -107,7 +108,9 @@
     <ClCompile Include="common\edriver\OLED.cpp" />
     <ClCompile Include="common\edriver\OLED_ssd1306.cpp" />
     <ClCompile Include="common\edriver\parallel_gpio.cpp" />
+    <ClCompile Include="common\edriver\PID.cpp" />
     <ClCompile Include="common\edriver\si4432.cpp" />
+    <ClCompile Include="common\edriver\tb6612fng.cpp" />
     <ClCompile Include="common\edriver\TM1638.cpp" />
     <ClCompile Include="common\edriver\ultrasonic_wave.cpp" />
     <ClCompile Include="common\edriver\w25x16.cpp" />
@@ -203,6 +206,7 @@
     <ClInclude Include="common\edriver\DS3231.h" />
     <ClInclude Include="common\edriver\encoder.h" />
     <ClInclude Include="common\edriver\encoder_exti.h" />
+    <ClInclude Include="common\edriver\encoder_motor.h" />
     <ClInclude Include="common\edriver\fm25v.h" />
     <ClInclude Include="common\edriver\font.h" />
     <ClInclude Include="common\edriver\FT800.h" />
@@ -225,7 +229,9 @@
     <ClInclude Include="common\edriver\OLED.h" />
     <ClInclude Include="common\edriver\OLED_ssd1306.h" />
     <ClInclude Include="common\edriver\parallel_gpio.h" />
+    <ClInclude Include="common\edriver\PID.hpp" />
     <ClInclude Include="common\edriver\si4432.h" />
+    <ClInclude Include="common\edriver\tb6612fng.h" />
     <ClInclude Include="common\edriver\TM1638.h" />
     <ClInclude Include="common\edriver\ultrasonic_wave.h" />
     <ClInclude Include="common\edriver\w25x16.h" />

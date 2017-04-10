@@ -70,6 +70,7 @@ vs工程和移植注意事项在ebox_stm32f103RCT6_VS/ebox_stm32f103RCT6_VS/ebox
 - ds3231：i2c
 ### 正交编码器
 - encoder
+- encoder_exti：旋转正交编码器。基于外部中断
 
 ## 如何将工程搬移到visualGDB上？
 > https://visualgdb.com/tutorials/arm/keil/
