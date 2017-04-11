@@ -52,7 +52,7 @@ namespace greg {
 
 	float PID::refresh(const float &feedback_input) {
 		error = set_point-feedback_input;
-		if (error >= error_threshold or error <= -error_threshold) {
+		if (error >= error_threshold || error <= -error_threshold) {
 			last_output = Kp*error + Ki*integral + Kd*(error-last_error);
 			if (last_output > output_upper_limit) {
 				last_output = output_upper_limit;

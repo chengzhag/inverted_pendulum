@@ -15,6 +15,7 @@ class TB6612FNG
 public:
 	TB6612FNG(Gpio *pinA, Gpio *pinB, 
 		Gpio *pinPwm, uint32_t frequency = 15000);
+	void begin();
 	void setPercent(float p);
 	float getPercent();
 };

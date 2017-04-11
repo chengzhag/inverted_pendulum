@@ -36,7 +36,11 @@ EncoderExti::EncoderExti(Gpio *Apin, Gpio *Bpin) :
 	a_pin(Apin), b_pin(Bpin),
 	extiA(Apin, EXTI_Trigger_Rising_Falling),
 	extiB(Bpin, EXTI_Trigger_Rising_Falling),
-	position(0)
+	position(0), positionOld(0)
+{
+}
+
+void EncoderExti::begin()
 {
 	extiA.begin();
 	extiA.attach(this, &EncoderExti::eventA);
@@ -46,7 +50,7 @@ EncoderExti::EncoderExti(Gpio *Apin, Gpio *Bpin) :
 	extiB.interrupt(ENABLE);
 }
 
-ROTARY_ENCODER_TYPE EncoderExti::getPosition()
+long long EncoderExti::getPosition()
 {
 	return position;
 }
@@ -54,4 +58,15 @@ ROTARY_ENCODER_TYPE EncoderExti::getPosition()
 void EncoderExti::resetPosition()
 {
 	position = 0;
+}
+
+void EncoderExti::countDiff()
+{
+	difference = positionOld - position;
+	positionOld = position;
+}
+
+long EncoderExti::getDiff()
+{
+	return difference;
 }

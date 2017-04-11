@@ -3,10 +3,11 @@
 
 #include "ebox.h"
 
-#define ROTARY_ENCODER_TYPE long long
 class EncoderExti
 {
-	ROTARY_ENCODER_TYPE position;
+	long long position;
+	long long positionOld;
+	long difference;
 	Gpio *a_pin;
 	Gpio *b_pin;
 	Exti extiA;
@@ -14,9 +15,24 @@ class EncoderExti
 	void eventA();
 	void eventB();
 public:
+
+	//初始化正交编码器，Apin、Bpin分别为编码器的A、B相
 	EncoderExti(Gpio *Apin, Gpio *Bpin);
-	ROTARY_ENCODER_TYPE getPosition();
+
+	//开始配置ebox选项
+	void begin();
+
+	//获取位置
+	long long getPosition();
+
+	//重置位置为0
 	void resetPosition();
+
+	//计算与上次位置的差值
+	void countDiff();
+
+	//获取计算的差值
+	long getDiff();
 };
 
 

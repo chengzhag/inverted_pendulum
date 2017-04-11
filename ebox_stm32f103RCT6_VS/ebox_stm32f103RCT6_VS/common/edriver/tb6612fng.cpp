@@ -9,15 +9,33 @@ TB6612FNG::TB6612FNG(Gpio *pinA, Gpio *pinB,
 	frq(frequency),
 	percent(0)
 {
-	aPin->mode(OUTPUT_PP_PD);
-	bPin->mode(OUTPUT_PP_PD);
-	pwm.begin(frequency, 0);
+
+}
+
+void TB6612FNG::begin()
+{
+	aPin->mode(OUTPUT_PP);
+	bPin->mode(OUTPUT_PP);
+	pwm.begin(frq, 0);
+	pwm.set_oc_polarity(1);
 }
 
 void TB6612FNG::setPercent(float p)
 {
-	percent = p;
-	uint16_t duty = abs(p * 1000);
+	if (p>100)
+	{
+		percent = 100;
+	}
+	else if (p < -100)
+	{
+		percent = -100;
+	}
+	else
+	{
+		percent = p;
+	}
+	
+	uint16_t duty = abs(percent * 10);
 	if (p > 0)
 	{
 		aPin->set();
