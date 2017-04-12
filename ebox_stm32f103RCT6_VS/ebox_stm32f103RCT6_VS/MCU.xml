@@ -40,9 +40,9 @@
         <string>common/FreeModbus/port</string>
         <string>Project/stm32f10x/mdk/RTE</string>
         <string>C:/Keil_v5/ARM/PACK/Keil/STM32F1xx_DFP/1.0.5/Device/Include</string>
-        <string>C:/Keil_v5/ARM/CMSIS/Include</string>
         <string>os/FreeRTOS/Source/include</string>
         <string>os/FreeRTOS/Source/portable/RVDS/ARM_CM3</string>
+        <string>C:/Keil_v5/ARM/CMSIS/Include</string>
       </IncludeDirectories>
       <CFLAGS />
       <CXXFLAGS />

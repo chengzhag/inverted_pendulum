@@ -12,6 +12,17 @@
       <Syscalls />
     </CatchpointConfiguration>
     <FavoriteEmbeddedRegisters />
-    <LiveVariables />
+    <LiveVariables>
+      <LiveVariable>
+        <Expression>pos</Expression>
+        <Type>SInt64</Type>
+        <Enabled>true</Enabled>
+        <Breakpoint>
+          <ComparisonMode>Equals</ComparisonMode>
+          <Enabled>false</Enabled>
+        </Breakpoint>
+        <Plot>true</Plot>
+      </LiveVariable>
+    </LiveVariables>
   </DebugPreferences>
 </VisualGDBUserPreferences>

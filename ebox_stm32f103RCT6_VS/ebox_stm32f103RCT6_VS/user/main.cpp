@@ -47,14 +47,17 @@ static void vLEDTask(void *pvParameters)
 	}
 }
 
+long long pos = 0;
 static void vPIDTask(void *pvParameters)
 {
 	while (1)
 	{
 		vTaskDelay(10 / portTICK_RATE_MS);
 		motor1.refresh();
+		pos = motor1.getPosition();
 	}
 }
+
 
 void setup()
 {

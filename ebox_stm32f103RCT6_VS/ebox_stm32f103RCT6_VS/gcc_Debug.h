@@ -1132,7 +1132,7 @@
 
 // --- Include directories begin --- //
 //C:\Keil_v5\ARM\PACK\Keil\STM32F1xx_DFP\1.0.5\Device\Include
-//C:\Keil_v5\ARM\CMSIS\Include
+//C:/Keil_v5/ARM/CMSIS/Include
 //c:\sysgcc\arm-eabi\bin\../lib/gcc/arm-eabi/6.2.0/../../../../arm-eabi/include/c++/6.2.0
 //c:\sysgcc\arm-eabi\bin\../lib/gcc/arm-eabi/6.2.0/../../../../arm-eabi/include/c++/6.2.0/arm-eabi
 //c:\sysgcc\arm-eabi\bin\../lib/gcc/arm-eabi/6.2.0/../../../../arm-eabi/include/c++/6.2.0/backward
