@@ -50,7 +50,7 @@ void EncoderExti::begin()
 	extiB.interrupt(ENABLE);
 }
 
-long long EncoderExti::getPosition()
+long EncoderExti::getPosition()
 {
 	return position;
 }

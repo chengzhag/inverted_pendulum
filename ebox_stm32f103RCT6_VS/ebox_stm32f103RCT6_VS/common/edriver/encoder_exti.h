@@ -5,8 +5,8 @@
 
 class EncoderExti
 {
-	long long position;
-	long long positionOld;
+	long position;
+	long positionOld;
 	long difference;
 	Gpio *a_pin;
 	Gpio *b_pin;
@@ -23,7 +23,7 @@ public:
 	void begin();
 
 	//获取位置
-	long long getPosition();
+	long getPosition();
 
 	//重置位置为0
 	void resetPosition();

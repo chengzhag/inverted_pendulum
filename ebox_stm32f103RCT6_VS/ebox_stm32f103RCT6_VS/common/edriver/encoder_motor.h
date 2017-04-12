@@ -57,7 +57,7 @@ public:
 		outputPercent = pid.refresh(encoder.getPosition());
 		driver.setPercent(outputPercent);
 	}
-	long long getPosition()
+	long getPosition()
 	{
 		return encoder.getPosition();
 	}
@@ -69,7 +69,7 @@ public:
 	{
 		return outputPercent;
 	}
-	void setPosition(long long pos)
+	void setPosition(long pos)
 	{
 		if (mode==Encoder_Motor_Target_Position)
 		{
