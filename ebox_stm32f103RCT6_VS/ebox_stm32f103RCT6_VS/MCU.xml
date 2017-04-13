@@ -11,7 +11,7 @@
     <CompilationFlags>
       <PreprocessorMacros>
         <string>__UVISION_VERSION="514"</string>
-        <string>STM32F10X_HD</string>
+        <string>STM32F10X_MD</string>
       </PreprocessorMacros>
       <IncludeDirectories>
         <string>mcu/stm32f10x/libraries/CMSIS/CM3/CoreSupport</string>
