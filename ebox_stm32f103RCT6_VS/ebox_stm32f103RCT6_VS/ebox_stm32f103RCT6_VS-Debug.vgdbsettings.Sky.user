@@ -15,7 +15,7 @@
     <LiveVariables>
       <LiveVariable>
         <Expression>pos</Expression>
-        <Type>SInt64</Type>
+        <Type>SInt32</Type>
         <Enabled>true</Enabled>
         <Breakpoint>
           <ComparisonMode>Equals</ComparisonMode>

@@ -21,9 +21,9 @@
 #include "tb6612fng.h"
 
 //EncoderExti encoder1(&PA6, &PA7);
-EncoderExti encoder2(&PA5, &PA4);
+EncoderExti encoder2(&PA5, &PA6);
 //TB6612FNG motor1(&PB1, &PB2,&PB0);
-EncoderMotor motor1(&PA6, &PA7, &PB1, &PB2, &PB0);
+EncoderMotor motor1(&PA3, &PA4, &PA1, &PA2, &PA0);
 
 Led led1(&PA8,1);
 
@@ -47,7 +47,7 @@ static void vLEDTask(void *pvParameters)
 	}
 }
 
-long long pos = 0;
+long pos = 0;
 static void vPIDTask(void *pvParameters)
 {
 	while (1)
