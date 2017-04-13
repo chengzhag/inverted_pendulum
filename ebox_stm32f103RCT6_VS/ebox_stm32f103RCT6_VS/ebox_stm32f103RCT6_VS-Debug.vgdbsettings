@@ -79,7 +79,7 @@
         </KeyValue>
         <KeyValue>
           <Key>com.sysprogs.jlink.targetdevice</Key>
-          <Value>STM32F103RC</Value>
+          <Value>STM32F103C8</Value>
         </KeyValue>
         <KeyValue>
           <Key>com.sysprogs.jlink.targetinterface</Key>
