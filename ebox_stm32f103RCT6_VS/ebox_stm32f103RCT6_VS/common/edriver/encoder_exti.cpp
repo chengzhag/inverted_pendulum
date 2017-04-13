@@ -2,41 +2,41 @@
 
 void EncoderExti::eventA()
 {
-	int state = a_pin->read() << 1 | b_pin->read();
+	int state = pinA->read() << 1 | pinB->read();
 	switch (state)
 	{
 	case 0:
 	case 3:
-		position++;
+		pos++;
 		break;
 	case 1:
 	case 2:
-		position--;
+		pos--;
 		break;
 	}
 }
 
 void EncoderExti::eventB()
 {
-	int state = a_pin->read() << 1 | b_pin->read();
+	int state = pinA->read() << 1 | pinB->read();
 	switch (state)
 	{
 	case 0:
 	case 3:
-		position--;
+		pos--;
 		break;
 	case 1:
 	case 2:
-		position++;
+		pos++;
 		break;
 	}
 }
 
-EncoderExti::EncoderExti(Gpio *Apin, Gpio *Bpin) :
-	a_pin(Apin), b_pin(Bpin),
-	extiA(Apin, EXTI_Trigger_Rising_Falling),
-	extiB(Bpin, EXTI_Trigger_Rising_Falling),
-	position(0), positionOld(0)
+EncoderExti::EncoderExti(Gpio *encoderPinA, Gpio *encoderPinB) :
+	pinA(encoderPinA), pinB(encoderPinB),
+	extiA(encoderPinA, EXTI_Trigger_Rising_Falling),
+	extiB(encoderPinB, EXTI_Trigger_Rising_Falling),
+	pos(0), posOld(0)
 {
 }
 
@@ -50,23 +50,23 @@ void EncoderExti::begin()
 	extiB.interrupt(ENABLE);
 }
 
-long EncoderExti::getPosition()
+long EncoderExti::getPos()
 {
-	return position;
+	return pos;
 }
 
-void EncoderExti::resetPosition()
+void EncoderExti::resetPos()
 {
-	position = 0;
+	pos = 0;
 }
 
 void EncoderExti::countDiff()
 {
-	difference = positionOld - position;
-	positionOld = position;
+	diff = posOld - pos;
+	posOld = pos;
 }
 
 long EncoderExti::getDiff()
 {
-	return difference;
+	return diff;
 }

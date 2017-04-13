@@ -35,9 +35,9 @@ static void vLEDTask(void *pvParameters)
 		led1.toggle();
 		vTaskDelay(100 / portTICK_RATE_MS);
 		uart1.printf("%f\t\t%ld\t\t%lld\r\n", 
-			motor1.getOutputPercent(),
-			motor1.getSpeed(), 
-			motor1.getPosition());
+			motor1.getPercent(),
+			motor1.getSpd(), 
+			motor1.getPos());
 		//motor1Percent = motor1Percent + 2;
 		//if (motor1Percent>100)
 		//{
@@ -54,7 +54,7 @@ static void vPIDTask(void *pvParameters)
 	{
 		vTaskDelay(10 / portTICK_RATE_MS);
 		motor1.refresh();
-		pos = motor1.getPosition();
+		pos = motor1.getPos();
 	}
 }
 
@@ -68,7 +68,7 @@ void setup()
 	encoder2.begin();
 	motor1.begin();
 
-	motor1.setPosition(1000);
+	motor1.setPos(1000);
 
 	set_systick_user_event_per_sec(configTICK_RATE_HZ);
 	attach_systick_user_event(xPortSysTickHandler);

@@ -1,21 +1,21 @@
 #include "tb6612fng.h"
 
-TB6612FNG::TB6612FNG(Gpio *pinA, Gpio *pinB,
-	Gpio *pinPwm, uint32_t frequency /*= 15000*/) :
-	aPin(pinA),
-	bPin(pinB),
-	pwmPin(pinPwm),
-	pwm(pinPwm),
-	frq(frequency),
-	percent(0)
+TB6612FNG::TB6612FNG(Gpio *motorPinA, Gpio *motorPinB,
+	Gpio *motorPinPwm, uint32_t pwmFrequency) :
+	pinA(motorPinA),
+	pinB(motorPinB),
+	pinP(motorPinPwm),
+	pwm(motorPinPwm),
+	frq(pwmFrequency),
+	pct(0)
 {
 
 }
 
 void TB6612FNG::begin()
 {
-	aPin->mode(OUTPUT_PP);
-	bPin->mode(OUTPUT_PP);
+	pinA->mode(OUTPUT_PP);
+	pinB->mode(OUTPUT_PP);
 	pwm.begin(frq, 0);
 	pwm.set_oc_polarity(1);
 }
@@ -24,37 +24,37 @@ void TB6612FNG::setPercent(float p)
 {
 	if (p>100)
 	{
-		percent = 100;
+		pct = 100;
 	}
 	else if (p < -100)
 	{
-		percent = -100;
+		pct = -100;
 	}
 	else
 	{
-		percent = p;
+		pct = p;
 	}
 	
-	uint16_t duty = abs(percent * 10);
+	uint16_t duty = abs(pct * 10);
 	if (p > 0)
 	{
-		aPin->set();
-		bPin->reset();
+		pinA->set();
+		pinB->reset();
 	}
 	else if (p < 0)
 	{
-		bPin->set();
-		aPin->reset();
+		pinB->set();
+		pinA->reset();
 	}
 	else
 	{
-		bPin->reset();
-		aPin->reset();
+		pinB->reset();
+		pinA->reset();
 	}
 	pwm.set_duty(duty);
 }
 
 float TB6612FNG::getPercent()
 {
-	return percent;
+	return pct;
 }

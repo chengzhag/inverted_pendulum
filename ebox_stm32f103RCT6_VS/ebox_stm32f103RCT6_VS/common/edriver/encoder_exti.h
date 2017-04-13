@@ -5,11 +5,11 @@
 
 class EncoderExti
 {
-	long position;
-	long positionOld;
-	long difference;
-	Gpio *a_pin;
-	Gpio *b_pin;
+	long pos;
+	long posOld;
+	long diff;
+	Gpio *pinA;
+	Gpio *pinB;
 	Exti extiA;
 	Exti extiB;
 	void eventA();
@@ -17,16 +17,16 @@ class EncoderExti
 public:
 
 	//初始化正交编码器，Apin、Bpin分别为编码器的A、B相
-	EncoderExti(Gpio *Apin, Gpio *Bpin);
+	EncoderExti(Gpio *encoderPinA, Gpio *encoderPinB);
 
 	//开始配置ebox选项
 	void begin();
 
 	//获取位置
-	long getPosition();
+	long getPos();
 
 	//重置位置为0
-	void resetPosition();
+	void resetPos();
 
 	//计算与上次位置的差值
 	void countDiff();

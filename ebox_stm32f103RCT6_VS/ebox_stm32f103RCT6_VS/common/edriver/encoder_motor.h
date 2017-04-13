@@ -17,18 +17,18 @@ class EncoderMotor
 	EncoderExti encoder;
 	TB6612FNG driver;
 	int mode;
-	float outputPercent;
+	float percent;
 public:
 	greg::PID pid;
 
-	EncoderMotor(Gpio *enA, Gpio *enB, 
-		Gpio *moA, Gpio *moB, Gpio *moPwm,
+	EncoderMotor(Gpio *encoderPinA, Gpio *encoderPinB, 
+		Gpio *motorPinA, Gpio *motorPinB, Gpio *motorPinPwm,
 		int controlTarget = Encoder_Motor_Target_Position,
 		float refreshInterval = 0.01) :
-		encoder(enA, enB),
-		driver(moA, moB, moPwm),
+		encoder(encoderPinA, encoderPinB),
+		driver(motorPinA, motorPinB, motorPinPwm),
 		mode(controlTarget),
-		outputPercent(0)
+		percent(0)
 	{
 		switch (controlTarget)
 		{
@@ -51,32 +51,37 @@ public:
 		driver.begin();
 		encoder.begin();
 	}
+	void begin(const float &Kp, const float &Ki, const float &Kd)
+	{
+		pid.setWeights(Kp, Ki, Kd);
+		begin();
+	}
 	void refresh()
 	{
 		encoder.countDiff();
-		outputPercent = pid.refresh(encoder.getPosition());
-		driver.setPercent(outputPercent);
+		percent = pid.refresh(encoder.getPos());
+		driver.setPercent(percent);
 	}
-	long getPosition()
+	long getPos()
 	{
-		return encoder.getPosition();
+		return encoder.getPos();
 	}
-	long getSpeed()
+	long getSpd()
 	{
 		return encoder.getDiff();
 	}
-	float getOutputPercent()
+	float getPercent()
 	{
-		return outputPercent;
+		return percent;
 	}
-	void setPosition(long pos)
+	void setPos(long pos)
 	{
 		if (mode==Encoder_Motor_Target_Position)
 		{
 			pid.setDesiredPoint(pos);
 		}
 	}
-	void setSpeed(long spd)
+	void setSpd(long spd)
 	{
 		if (mode == Encoder_Motor_Target_Speed)
 		{
