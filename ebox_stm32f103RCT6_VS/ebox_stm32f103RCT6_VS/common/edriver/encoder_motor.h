@@ -58,7 +58,7 @@ public:
 	}
 	void refresh()
 	{
-		encoder.countDiff();
+		encoder.refreshDiff();
 		percent = pid.refresh(encoder.getPos());
 		driver.setPercent(percent);
 	}

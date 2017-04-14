@@ -20,30 +20,23 @@
 #include "encoder_motor.h"
 #include "tb6612fng.h"
 
-//EncoderExti encoder1(&PA6, &PA7);
-EncoderExti encoder2(&PA5, &PA6);
-//TB6612FNG motor1(&PB1, &PB2,&PB0);
+EncoderExti encoder1(&PA5, &PA6);
 EncoderMotor motor1(&PA3, &PA4, &PA1, &PA2, &PA0);
 
 Led led1(&PC13,1);
 
 static void vLEDTask(void *pvParameters)
 {
-	//float motor1Percent = 0;
 	while (1)
 	{
 		led1.toggle();
 		vTaskDelay(100 / portTICK_RATE_MS);
-		uart1.printf("%f\t\t%ld\t\t%ld\r\n", 
+		uart1.printf("%f\t\t%ld\t\t%ld\t\t%ld\r\n", 
 			motor1.getPercent(),
 			motor1.getSpd(), 
-			motor1.getPos());
-		//motor1Percent = motor1Percent + 2;
-		//if (motor1Percent>100)
-		//{
-		//	motor1Percent = -100;
-		//}
-		//motor1.setPercent(motor1Percent);
+			motor1.getPos(),
+			encoder1.getPos()
+			);
 	}
 }
 
@@ -64,8 +57,7 @@ void setup()
     ebox_init();
     uart1.begin(115200);
 	led1.begin();
-	//encoder1.begin();
-	encoder2.begin();
+	encoder1.begin();
 	motor1.begin();
 
 	motor1.setPos(1000);

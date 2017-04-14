@@ -29,7 +29,7 @@ public:
 	void resetPos();
 
 	//计算与上次位置的差值
-	void countDiff();
+	void refreshDiff();
 
 	//获取计算的差值
 	long getDiff();

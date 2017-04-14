@@ -45,9 +45,12 @@ void EncoderExti::begin()
 	extiA.begin();
 	extiA.attach(this, &EncoderExti::eventA);
 	extiA.interrupt(ENABLE);
+	pinA->mode(INPUT_PU);
+	
 	extiB.begin();
 	extiB.attach(this, &EncoderExti::eventB);
 	extiB.interrupt(ENABLE);
+	pinB->mode(INPUT_PU);
 }
 
 long EncoderExti::getPos()
@@ -60,7 +63,7 @@ void EncoderExti::resetPos()
 	pos = 0;
 }
 
-void EncoderExti::countDiff()
+void EncoderExti::refreshDiff()
 {
 	diff = posOld - pos;
 	posOld = pos;
