@@ -25,7 +25,7 @@ EncoderExti encoder2(&PA5, &PA6);
 //TB6612FNG motor1(&PB1, &PB2,&PB0);
 EncoderMotor motor1(&PA3, &PA4, &PA1, &PA2, &PA0);
 
-Led led1(&PA8,1);
+Led led1(&PC13,1);
 
 static void vLEDTask(void *pvParameters)
 {
@@ -34,7 +34,7 @@ static void vLEDTask(void *pvParameters)
 	{
 		led1.toggle();
 		vTaskDelay(100 / portTICK_RATE_MS);
-		uart1.printf("%f\t\t%ld\t\t%lld\r\n", 
+		uart1.printf("%f\t\t%ld\t\t%ld\r\n", 
 			motor1.getPercent(),
 			motor1.getSpd(), 
 			motor1.getPos());
