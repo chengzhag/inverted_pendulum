@@ -19,5 +19,3 @@ TIM1~TIM4可用io口如下：
 - TIM4:PB6 PB7
 
 本次倒立摆设计采用TIM1和TIM3配置正交编码器。用TIM2配置PWM控制电机
-
-因此暂时实现TIM1和TIM3的正交编码器驱动
