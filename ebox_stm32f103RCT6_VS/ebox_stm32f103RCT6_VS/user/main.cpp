@@ -22,11 +22,7 @@
 #include "PID.hpp"
 
 Led led1(&PC13, 1);
- //未重映射的情况下
- //- TIM1 : PA8 PA9
- //- TIM2 : PA0 PA1
- //- TIM3 : PA6 PA7
- //- TIM4 : PB6 PB7
+
 EncoderTimer encoder(TIM4);
 EncoderMotor motor(TIM3, &PA2, &PA1, &PA0);
 greg::PID pendulumPID,posPID;

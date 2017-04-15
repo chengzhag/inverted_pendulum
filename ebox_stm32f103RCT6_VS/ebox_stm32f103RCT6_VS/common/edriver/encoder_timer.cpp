@@ -5,6 +5,7 @@ EncoderTimer::EncoderTimer(TIM_TypeDef *TIMx) :
 {
 	timer = TIMx;
 
+	//设置IO、定时器使能时钟
 	if (timer == TIM1)
 	{
 		pinA = &PA8;
@@ -33,9 +34,11 @@ EncoderTimer::EncoderTimer(TIM_TypeDef *TIMx) :
 
 void EncoderTimer::begin()
 {
+	//设置IO为悬空输入
 	pinA->mode(INPUT);
 	pinB->mode(INPUT);
 
+	//配置定时器
 	TIM_TimeBaseStructInit(&TIM_TimeBaseStructure);
 	TIM_TimeBaseStructure.TIM_Prescaler = 0x0; // 预分频器 
 	TIM_TimeBaseStructure.TIM_Period = (u16)(65535); //设定计数器自动重装值
@@ -48,7 +51,8 @@ void EncoderTimer::begin()
 	TIM_ICInit(timer, &TIM_ICInitStructure);
 	TIM_ClearFlag(timer, TIM_FLAG_Update);//清除TIM的更新标志位
 	TIM_ITConfig(timer, TIM_IT_Update, ENABLE);
-	//Reset counter
+
+	//使能定时器，清空计数
 	TIM_SetCounter(timer, 0);
 	TIM_Cmd(timer, ENABLE);
 }
@@ -65,6 +69,7 @@ void EncoderTimer::resetPos()
 
 void EncoderTimer::refresh()
 {
+	//读取计数器、清空计数
 	diff = timer->CNT;
 	timer->CNT = 0;
 	pos = pos + diff;
