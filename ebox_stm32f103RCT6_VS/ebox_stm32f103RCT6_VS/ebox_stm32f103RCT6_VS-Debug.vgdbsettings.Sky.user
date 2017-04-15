@@ -14,7 +14,7 @@
     <FavoriteEmbeddedRegisters />
     <LiveVariables>
       <LiveVariable>
-        <Expression>pos</Expression>
+        <Expression>posPendulum</Expression>
         <Type>SInt32</Type>
         <Enabled>true</Enabled>
         <Breakpoint>

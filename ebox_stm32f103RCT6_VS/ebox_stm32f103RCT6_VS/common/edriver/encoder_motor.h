@@ -38,6 +38,7 @@ public:
 	short getSpd();
 	float getPercent();
 	void setPos(long pos);
+	void setPosDiff(int pos);
 	void setSpd(long spd);
 };
 

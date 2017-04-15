@@ -65,6 +65,14 @@ void EncoderMotor::setPos(long pos)
 	}
 }
 
+void EncoderMotor::setPosDiff(int pos)
+{
+	if (mode == Encoder_Motor_Target_Position)
+	{
+		pid.setDesiredPoint(getPos()+pos);
+	}
+}
+
 void EncoderMotor::setSpd(long spd)
 {
 	if (mode == Encoder_Motor_Target_Speed)
