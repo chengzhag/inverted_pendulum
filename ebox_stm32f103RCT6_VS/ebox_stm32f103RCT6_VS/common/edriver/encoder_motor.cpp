@@ -10,7 +10,7 @@ EncoderMotor::EncoderMotor(TIM_TypeDef *TIMx, Gpio *motorPinA, Gpio *motorPinB, 
 	{
 	case Encoder_Motor_Target_Position:
 		pid.setRefreshInterval(refreshInterval);
-		pid.setWeights(0.8, 0, 0);
+		pid.setWeights(1.5, 0.1, 0.02);
 		pid.setOutputLowerLimit(-100);
 		pid.setOutputUpperLimit(100);
 		pid.setDesiredPoint(0);
@@ -37,7 +37,7 @@ void EncoderMotor::begin()
 
 void EncoderMotor::refresh()
 {
-	encoder.refreshDiff();
+	encoder.refresh();
 	percent = pid.refresh(encoder.getPos());
 	driver.setPercent(percent);
 }
@@ -47,7 +47,7 @@ long EncoderMotor::getPos()
 	return encoder.getPos();
 }
 
-long EncoderMotor::getSpd()
+short EncoderMotor::getSpd()
 {
 	return encoder.getDiff();
 }

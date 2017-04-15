@@ -5,9 +5,9 @@
 
 class EncoderExti
 {
-	short pos;
-	short posOld;
-	short diff;
+	long pos;
+	long posOld;
+	long diff;
 	Gpio *pinA;
 	Gpio *pinB;
 	Exti extiA;
@@ -23,7 +23,7 @@ public:
 	void begin();
 
 	//获取位置
-	short getPos();
+	long getPos();
 
 	//重置位置为0
 	void resetPos();
@@ -32,7 +32,7 @@ public:
 	void refreshDiff();
 
 	//获取计算的差值
-	short getDiff();
+	long getDiff();
 };
 
 

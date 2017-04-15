@@ -87,6 +87,7 @@
     <ClCompile Include="common\edriver\encoder.cpp" />
     <ClCompile Include="common\edriver\encoder_exti.cpp" />
     <ClCompile Include="common\edriver\encoder_motor.cpp" />
+    <ClCompile Include="common\edriver\encoder_timer.cpp" />
     <ClCompile Include="common\edriver\fm25v.cpp" />
     <ClCompile Include="common\edriver\FT800.cpp" />
     <ClCompile Include="common\edriver\GP2Y1051.cpp" />

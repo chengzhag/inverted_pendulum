@@ -51,7 +51,7 @@ void EncoderExti::begin()
 	extiB.interrupt(ENABLE);
 }
 
-short EncoderExti::getPos()
+long EncoderExti::getPos()
 {
 	return pos;
 }
@@ -67,7 +67,7 @@ void EncoderExti::refreshDiff()
 	posOld = pos;
 }
 
-short EncoderExti::getDiff()
+long EncoderExti::getDiff()
 {
 	return diff;
 }

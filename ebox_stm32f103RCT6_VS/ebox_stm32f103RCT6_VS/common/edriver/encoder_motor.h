@@ -21,15 +21,21 @@ class EncoderMotor
 public:
 	greg::PID pid;
 
+	//未重映射的情况下
+	//- TIM1 : PA8 PA9
+	//- TIM2 : PA0 PA1
+	//- TIM3 : PA6 PA7
+	//- TIM4 : PB6 PB7
 	EncoderMotor(TIM_TypeDef *TIMx,
 		Gpio *motorPinA, Gpio *motorPinB, Gpio *motorPinPwm,
 		int controlTarget = Encoder_Motor_Target_Position,
 		float refreshInterval = 0.01);
+
 	void begin();
 	void begin(const float &Kp, const float &Ki, const float &Kd);
 	void refresh();
 	long getPos();
-	long getSpd();
+	short getSpd();
 	float getPercent();
 	void setPos(long pos);
 	void setSpd(long spd);
