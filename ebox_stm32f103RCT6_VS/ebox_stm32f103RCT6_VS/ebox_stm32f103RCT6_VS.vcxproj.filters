@@ -1249,6 +1249,9 @@
     <ClInclude Include="common\edriver\tb6612fng.h">
       <Filter>Header files\common\edriver</Filter>
     </ClInclude>
+    <ClInclude Include="common\edriver\encoder_timer.h">
+      <Filter>Header files\common\edriver</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile" />

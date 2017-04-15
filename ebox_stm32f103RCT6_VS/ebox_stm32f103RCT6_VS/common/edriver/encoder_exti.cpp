@@ -45,15 +45,13 @@ void EncoderExti::begin()
 	extiA.begin();
 	extiA.attach(this, &EncoderExti::eventA);
 	extiA.interrupt(ENABLE);
-	pinA->mode(INPUT_PU);
 	
 	extiB.begin();
 	extiB.attach(this, &EncoderExti::eventB);
 	extiB.interrupt(ENABLE);
-	pinB->mode(INPUT_PU);
 }
 
-long EncoderExti::getPos()
+short EncoderExti::getPos()
 {
 	return pos;
 }
@@ -65,11 +63,11 @@ void EncoderExti::resetPos()
 
 void EncoderExti::refreshDiff()
 {
-	diff = posOld - pos;
+	diff = pos - posOld;
 	posOld = pos;
 }
 
-long EncoderExti::getDiff()
+short EncoderExti::getDiff()
 {
 	return diff;
 }

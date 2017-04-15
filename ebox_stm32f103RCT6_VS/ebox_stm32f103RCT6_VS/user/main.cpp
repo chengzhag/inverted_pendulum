@@ -20,8 +20,8 @@
 #include "encoder_motor.h"
 #include "tb6612fng.h"
 
-EncoderExti encoder1(&PA5, &PA6);
-EncoderMotor motor1(&PA3, &PA4, &PA1, &PA2, &PA0);
+EncoderTimer encoder1(TIM3);
+EncoderMotor motor1(TIM1, &PA1, &PA2, &PA0);
 
 Led led1(&PC13,1);
 
@@ -31,7 +31,7 @@ static void vLEDTask(void *pvParameters)
 	{
 		led1.toggle();
 		vTaskDelay(100 / portTICK_RATE_MS);
-		uart1.printf("%f\t\t%ld\t\t%ld\t\t%ld\r\n", 
+		uart1.printf("%f\t\t%d\t\t%d\t\t%d\r\n", 
 			motor1.getPercent(),
 			motor1.getSpd(), 
 			motor1.getPos(),
@@ -40,7 +40,7 @@ static void vLEDTask(void *pvParameters)
 	}
 }
 
-long pos = 0;
+int pos = 0;
 static void vPIDTask(void *pvParameters)
 {
 	while (1)

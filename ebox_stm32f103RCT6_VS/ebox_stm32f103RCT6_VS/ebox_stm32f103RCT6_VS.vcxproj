@@ -207,6 +207,7 @@
     <ClInclude Include="common\edriver\encoder.h" />
     <ClInclude Include="common\edriver\encoder_exti.h" />
     <ClInclude Include="common\edriver\encoder_motor.h" />
+    <ClInclude Include="common\edriver\encoder_timer.h" />
     <ClInclude Include="common\edriver\fm25v.h" />
     <ClInclude Include="common\edriver\font.h" />
     <ClInclude Include="common\edriver\FT800.h" />
