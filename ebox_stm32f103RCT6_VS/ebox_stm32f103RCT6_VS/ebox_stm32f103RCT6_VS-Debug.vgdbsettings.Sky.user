@@ -14,8 +14,8 @@
     <FavoriteEmbeddedRegisters />
     <LiveVariables>
       <LiveVariable>
-        <Expression>posPendulum</Expression>
-        <Type>SInt32</Type>
+        <Expression>speedMotor</Expression>
+        <Type>SInt16</Type>
         <Enabled>true</Enabled>
         <Breakpoint>
           <ComparisonMode>Equals</ComparisonMode>

@@ -4,7 +4,7 @@ EncoderMotor::EncoderMotor(TIM_TypeDef *TIMx, Gpio *motorPinA, Gpio *motorPinB, 
 	encoder(TIMx),
 	driver(motorPinA, motorPinB, motorPinPwm),
 	mode(controlTarget),
-	percent(0)
+	percent(0), refreshInt(refreshInterval)
 {
 	switch (controlTarget)
 	{
@@ -17,7 +17,7 @@ EncoderMotor::EncoderMotor(TIM_TypeDef *TIMx, Gpio *motorPinA, Gpio *motorPinB, 
 		break;
 	case Encoder_Motor_Target_Speed:
 		pid.setRefreshInterval(refreshInterval);
-		pid.setWeights(1, 0, 0);
+		pid.setWeights(10, 10, 0);
 		pid.setOutputLowerLimit(-100);
 		pid.setOutputUpperLimit(100);
 		pid.setDesiredPoint(0);
@@ -84,7 +84,7 @@ void EncoderMotor::setPosDiff(int pos)
 	}
 }
 
-void EncoderMotor::setSpd(long spd)
+void EncoderMotor::setSpd(short spd)
 {
 	if (mode == Encoder_Motor_Target_Speed)
 	{
