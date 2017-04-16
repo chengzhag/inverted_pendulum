@@ -24,6 +24,7 @@ class EncoderMotor
 	TB6612FNG driver;
 	int mode;
 	float percent;
+	float refreshInt;
 public:
 	greg::PID pid;
 
@@ -57,7 +58,7 @@ public:
 	void setPosDiff(int pos);
 
 	//设置目标速度（速度控制模式）
-	void setSpd(long spd);
+	void setSpd(short spd);
 };
 
 #endif
