@@ -12,19 +12,19 @@ EncoderTimer::EncoderTimer(TIM_TypeDef *TIMx) :
 		pinB = &PA9;
 		RCC_APB2PeriphClockCmd(RCC_APB2Periph_TIM1, ENABLE);
 	}
-	if (timer == TIM2)
+	else if (timer == TIM2)
 	{
 		pinA = &PA0;
 		pinB = &PA1;
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM2, ENABLE);
 	}
-	if (timer == TIM3)
+	else if (timer == TIM3)
 	{
 		pinA = &PA6;
 		pinB = &PA7;
 		RCC_APB1PeriphClockCmd(RCC_APB1Periph_TIM3, ENABLE);
 	}
-	if (timer == TIM4)
+	else if (timer == TIM4)
 	{
 		pinA = &PB6;
 		pinB = &PB7;
