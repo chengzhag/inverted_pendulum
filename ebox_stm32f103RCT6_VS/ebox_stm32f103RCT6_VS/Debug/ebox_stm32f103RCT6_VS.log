@@ -21,5 +21,5 @@
   C:\SysGCC\arm-eabi/bin/arm-eabi-objcopy.exe: Debug/ebox_stm32f103RCT6_VS.elf: warning: allocated section `ER_RW' not in segment
   C:\SysGCC\arm-eabi/bin/arm-eabi-objcopy.exe: Debug/ebox_stm32f103RCT6_VS.elf: warning: allocated section `ER_RO' not in segment
   ------------------- Memory utilization report -------------------
-  Used FLASH: 39KB
+  Used FLASH: 39KB [+8]
   Used RAM: 14KB

@@ -21,7 +21,7 @@
 #include "tb6612fng.h"
 #include "PID.hpp"
 
-#define PID_REFRESH_INTERVAL 0.01
+#define PID_REFRESH_INTERVAL 0.005
 
 Led led1(&PC13, 1);
 
@@ -85,7 +85,7 @@ void setup()
 
 	//³õÊ¼»¯°Ú¸Ë½Ç¶ÈPID
 	pendulumPID.setRefreshInterval(PID_REFRESH_INTERVAL);
-	pendulumPID.setWeights(0.4, 1.05, 0.002);
+	pendulumPID.setWeights(0.4, 1.05, 0.0005);
 	pendulumPID.setOutputLowerLimit(-100);
 	pendulumPID.setOutputUpperLimit(100);
 	pendulumPID.setDesiredPoint(0);
