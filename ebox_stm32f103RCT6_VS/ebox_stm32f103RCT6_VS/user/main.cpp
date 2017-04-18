@@ -57,11 +57,8 @@ static void vPIDTask(void *pvParameters)
 		motor.refresh();
 		posMotor = motor.getPos();
 
-		//横梁位置
-		desiredPosPendulum=posPID.refresh(-posMotor);
 		//摆杆角度PID
 		posPendulum = -encoder.getPos();
-		pendulumPID.setDesiredPoint(desiredPosPendulum);
 		if (posPendulum<200 && posPendulum>-200)
 			motor.setPosDiff(pendulumPID.refresh(posPendulum));
 	}
@@ -80,17 +77,11 @@ void setup()
 
 	//初始化摆杆角度PID
 	pendulumPID.setRefreshInterval(0.01);
-	pendulumPID.setWeights(0.3, 0.5, 0.02);
+	pendulumPID.setWeights(0.7, 0.3, 0);
 	pendulumPID.setOutputLowerLimit(-50);
 	pendulumPID.setOutputUpperLimit(50);
 	pendulumPID.setDesiredPoint(0);
 
-	//初始化衡量位置PID
-	posPID.setRefreshInterval(0.01);
-	posPID.setWeights(0.1, 0, 0);
-	posPID.setOutputLowerLimit(-100);
-	posPID.setOutputUpperLimit(100);
-	posPID.setDesiredPoint(0);
 
 	//设置RTOS进程
 	set_systick_user_event_per_sec(configTICK_RATE_HZ);
