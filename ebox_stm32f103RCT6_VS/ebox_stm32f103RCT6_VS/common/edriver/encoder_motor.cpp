@@ -42,11 +42,11 @@ void EncoderMotor::begin()
 void EncoderMotor::refresh()
 {
 	encoder.refresh();
-	if (mode = Encoder_Motor_Target_Position)
+	if (mode == Encoder_Motor_Target_Position)
 	{
 		percent = pid.refresh(encoder.getPos());
 	}
-	else if (mode = Encoder_Motor_Target_Speed)
+	else if (mode == Encoder_Motor_Target_Speed)
 	{
 		percent = pid.refresh(encoder.getDiff());
 	}
