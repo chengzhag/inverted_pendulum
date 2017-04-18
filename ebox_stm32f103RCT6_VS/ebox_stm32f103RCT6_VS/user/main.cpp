@@ -74,7 +74,7 @@ void setup()
     uart1.begin(115200);
 	led1.begin();
 	encoder.begin();
-	motor.begin(1.5, 0.1, 0.02);
+	motor.begin();
 
 	//motor1.setPos(200);
 
