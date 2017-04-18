@@ -21,10 +21,12 @@
 #include "tb6612fng.h"
 #include "PID.hpp"
 
+#define PID_REFRESH_INTERVAL 0.01
+
 Led led1(&PC13, 1);
 
 EncoderTimer encoder(TIM4);
-EncoderMotor motor(TIM3, &PA2, &PA1, &PA0);
+EncoderMotor motor(TIM3, &PA2, &PA1, &PA0,Encoder_Motor_Target_Position, PID_REFRESH_INTERVAL);
 greg::PID pendulumPID,posPID;
 
 
@@ -43,6 +45,7 @@ static void vDebugTask(void *pvParameters)
 	}
 }
 
+
 long posMotor = 0;
 long posPendulum = 0;
 static void vPIDTask(void *pvParameters)
@@ -50,20 +53,22 @@ static void vPIDTask(void *pvParameters)
 	static long desiredPosPendulum = 0;
 	while (1)
 	{
-		vTaskDelay(10 / portTICK_RATE_MS);
+		vTaskDelay(PID_REFRESH_INTERVAL*1000 / portTICK_RATE_MS);
 		
 		//刷新编码器和电机位置PID
 		encoder.refresh();
 		motor.refresh();
 		posMotor = motor.getPos();
 
-		//横梁位置
-		desiredPosPendulum=posPID.refresh(-posMotor);
-		//摆杆角度PID
 		posPendulum = -encoder.getPos();
-		pendulumPID.setDesiredPoint(desiredPosPendulum);
-		if (posPendulum<200 && posPendulum>-200)
+		if (posPendulum<400 && posPendulum>-400)
+		{
+			//横梁位置
+			desiredPosPendulum = posPID.refresh(-posMotor);
+			pendulumPID.setDesiredPoint(desiredPosPendulum);
+			//摆杆角度PID
 			motor.setPosDiff(pendulumPID.refresh(posPendulum));
+		}
 	}
 }
 
@@ -79,15 +84,15 @@ void setup()
 	//motor1.setPos(200);
 
 	//初始化摆杆角度PID
-	pendulumPID.setRefreshInterval(0.01);
-	pendulumPID.setWeights(0.3, 0.5, 0.02);
-	pendulumPID.setOutputLowerLimit(-50);
-	pendulumPID.setOutputUpperLimit(50);
+	pendulumPID.setRefreshInterval(PID_REFRESH_INTERVAL);
+	pendulumPID.setWeights(0.4, 1.05, 0.002);
+	pendulumPID.setOutputLowerLimit(-100);
+	pendulumPID.setOutputUpperLimit(100);
 	pendulumPID.setDesiredPoint(0);
 
 	//初始化衡量位置PID
-	posPID.setRefreshInterval(0.01);
-	posPID.setWeights(0.1, 0, 0);
+	posPID.setRefreshInterval(PID_REFRESH_INTERVAL);
+	posPID.setWeights(0.04, 0, 0.045);
 	posPID.setOutputLowerLimit(-100);
 	posPID.setOutputUpperLimit(100);
 	posPID.setDesiredPoint(0);
