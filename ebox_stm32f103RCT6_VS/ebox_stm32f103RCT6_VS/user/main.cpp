@@ -61,11 +61,11 @@ static void vPIDTask(void *pvParameters)
 		posMotor = motor.getPos();
 
 		posPendulum = -encoder.getPos();
-		if (posPendulum<400 && posPendulum>-400)
+		if (posPendulum<1300 && posPendulum>700)
 		{
 			//横梁位置
 			desiredPosPendulum = posPID.refresh(-posMotor);
-			pendulumPID.setDesiredPoint(desiredPosPendulum);
+			pendulumPID.setDesiredPoint(1000+desiredPosPendulum);
 			//摆杆角度PID
 			motor.setPosDiff(pendulumPID.refresh(posPendulum));
 		}
@@ -88,7 +88,7 @@ void setup()
 	pendulumPID.setWeights(0.4, 1.05, 0.0005);
 	pendulumPID.setOutputLowerLimit(-100);
 	pendulumPID.setOutputUpperLimit(100);
-	pendulumPID.setDesiredPoint(0);
+	pendulumPID.setDesiredPoint(1000);
 
 	//初始化衡量位置PID
 	posPID.setRefreshInterval(PID_REFRESH_INTERVAL);
