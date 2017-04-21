@@ -76,12 +76,9 @@ void EncoderMotor::setPos(long pos)
 	}
 }
 
-void EncoderMotor::setPosDiff(int pos)
+void EncoderMotor::setPosDiff(short pos)
 {
-	if (mode == Encoder_Motor_Target_Position)
-	{
-		pid.setDesiredPoint(getPos()+pos);
-	}
+		setPos(getPos()+pos);
 }
 
 void EncoderMotor::setSpd(short spd)

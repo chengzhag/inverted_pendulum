@@ -31,7 +31,7 @@ public:
 	EncoderMotor(TIM_TypeDef *TIMx,
 		Gpio *motorPinA, Gpio *motorPinB, Gpio *motorPinPwm,
 		int controlTarget = Encoder_Motor_Target_Position,
-		float refreshInterval = 0.01);
+		float refreshInterval = 0.005);
 
 	//配置编码器和驱动
 	void begin();
@@ -55,7 +55,7 @@ public:
 	void setPos(long pos);
 
 	//设置目标位置增量（位置控制模式）
-	void setPosDiff(int pos);
+	void setPosDiff(short pos);
 
 	//设置目标速度（速度控制模式）
 	void setSpd(short spd);

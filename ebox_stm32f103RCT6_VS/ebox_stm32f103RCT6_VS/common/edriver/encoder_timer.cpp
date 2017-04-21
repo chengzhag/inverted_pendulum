@@ -1,7 +1,7 @@
 #include "encoder_timer.h"
 
 EncoderTimer::EncoderTimer(TIM_TypeDef *TIMx) :
-	pos(0),diff(0)
+	pos(0), diff(0), oldCNT(0)
 {
 	timer = TIMx;
 
@@ -62,16 +62,13 @@ long EncoderTimer::getPos()
 	return pos;
 }
 
-void EncoderTimer::resetPos()
-{
-	pos = 0;
-}
-
 void EncoderTimer::refresh()
 {
-	//读取计数器、清空计数
-	diff = timer->CNT;
-	timer->CNT = 0;
+	short tempCNT;
+	//读取计数器，不清空计数器，而用oldCNT实现相同功能
+	tempCNT = (short)timer->CNT;
+	diff = tempCNT - oldCNT;
+	oldCNT = tempCNT;
 	pos = pos + diff;
 }
 
@@ -79,3 +76,4 @@ short EncoderTimer::getDiff()
 {
 	return diff;
 }
+

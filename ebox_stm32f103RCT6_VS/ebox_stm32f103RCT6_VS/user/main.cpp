@@ -18,17 +18,148 @@
 #include "led.h"
 #include "encoder_timer.h"
 #include "encoder_motor.h"
-#include "tb6612fng.h"
 #include "PID.hpp"
 
 #define PID_REFRESH_INTERVAL 0.005
+#define M_PI		3.14159265358979323846
 
 Led led1(&PC13, 1);
 
-EncoderTimer encoder(TIM4);
-EncoderMotor motor(TIM3, &PA2, &PA1, &PA0,Encoder_Motor_Target_Position, PID_REFRESH_INTERVAL);
-greg::PID pendulumPID,posPID;
 
+class EncoderPendulum :public EncoderTimer
+{
+	unsigned int npr;//每圈pos的增量
+
+public:
+
+	//numPerRound: 每圈pos的增量
+	EncoderPendulum(TIM_TypeDef *TIMx, 
+		unsigned int numPerRound = 2000) :
+		EncoderTimer(TIMx),
+		npr(numPerRound)
+	{}
+
+	////以初始化点为+-180度点的绝对角度值，范围-180~180，单位度
+	//float getDegree()
+	//{
+	//	return getPos() % npr / (float)npr * 360 - 180;
+	//}
+	
+	//以初始化点为+-pi点的绝对弧度值，范围-pi~pi，单位弧度
+	float getRadian()
+	{
+		long posTemp = getPos();
+		if (posTemp >= 0)
+		{
+			return getPos() % npr / (float)npr * 2 * M_PI - M_PI;
+		}
+		else
+		{
+			return (npr - (-getPos()) % npr) / (float)npr * 2 * M_PI - M_PI;
+		}
+	}
+};
+
+class MotorBeam :public EncoderMotor
+{
+	unsigned int npr;//每圈pos的增量
+
+public:
+
+	//numPerRound: 每圈pos的增量
+	MotorBeam(TIM_TypeDef *TIMx,
+		Gpio *motorPinA, Gpio *motorPinB, Gpio *motorPinPwm,
+		unsigned int numPerRound = 1560,
+		int controlTarget = Encoder_Motor_Target_Position,
+		float refreshInterval = 0.005):
+		EncoderMotor(TIMx, motorPinA, motorPinB, motorPinPwm,
+			controlTarget, refreshInterval),
+		npr(numPerRound)
+	{}
+
+	////以初始化点为0度点的绝对角度值，范围-nan~+nan，单位度
+	//double getDegree()
+	//{
+	//	return getPos() / (double)npr * 360;
+	//}
+
+	//以初始化点为0弧度点的绝对角度值，范围-nan~+nan，单位弧度
+	double getRadian()
+	{
+		return getPos() / (double)npr * 2 * M_PI;
+	}
+
+	//设置目标角度弧度差
+	void setRadianDiff(float radian)
+	{
+		setPosDiff(radian / 2 / M_PI*npr);
+	}
+};
+
+class InvertedPendulum
+{
+
+	greg::PID pendulumPID, beamPID;
+	float refreshInt;
+	const float enableRadian;//进行pid反馈的角度范围，单方向，单位弧度
+public:
+	EncoderPendulum encoder;
+	MotorBeam motor;
+
+	InvertedPendulum(TIM_TypeDef *TIMpendulum,TIM_TypeDef *TIMmotor,
+		Gpio *motorPinA, Gpio *motorPinB, Gpio *motorPinPwm,
+		unsigned int nprPendulum = 2000, unsigned int nprMotor=1560, float refreshInterval = 0.005) :
+		encoder(TIMpendulum, nprPendulum),
+		motor(TIMmotor, motorPinA, motorPinB, motorPinPwm, 
+			nprMotor, Encoder_Motor_Target_Position, refreshInterval),
+		refreshInt(refreshInterval),
+		enableRadian(M_PI / 4)
+	{}
+
+	void begin()
+	{
+		encoder.begin();
+		motor.begin(1.5, 0.1, 0.02);
+
+		//TODO: 修正角度限制、pid调参，将反馈值单位改成弧度
+		//初始化摆杆角度PID
+		pendulumPID.setRefreshInterval(refreshInt);
+		pendulumPID.setWeights(0.5, 0, 0);
+		pendulumPID.setOutputLowerLimit(-2);
+		pendulumPID.setOutputUpperLimit(2);
+		pendulumPID.setDesiredPoint(0);
+
+		//初始化衡量位置PID
+		beamPID.setRefreshInterval(refreshInt);
+		beamPID.setWeights(0.1, 0, 0);
+		beamPID.setOutputLowerLimit(-0.5);
+		beamPID.setOutputUpperLimit(0.5);
+		beamPID.setDesiredPoint(0);
+	}
+
+	void refresh()
+	{
+		float desiredRadianPendulum = 0;
+
+		//刷新编码器和电机位置PID
+		encoder.refresh();
+		motor.refresh();
+
+		float radianPendulum = -encoder.getRadian();
+		if (radianPendulum < enableRadian && radianPendulum>-enableRadian)
+		{
+			//横梁位置
+			desiredRadianPendulum = beamPID.refresh(-motor.getRadian());
+			pendulumPID.setDesiredPoint(desiredRadianPendulum);
+			//摆杆角度PID
+			motor.setRadianDiff(pendulumPID.refresh(radianPendulum));
+		}
+	}
+};
+
+InvertedPendulum invertedPendulum(TIM4, TIM3,
+	&PA2, &PA1, &PA0,
+	2000, 1560, PID_REFRESH_INTERVAL);
 
 static void vDebugTask(void *pvParameters)
 {
@@ -36,39 +167,22 @@ static void vDebugTask(void *pvParameters)
 	{
 		led1.toggle();
 		vTaskDelay(100 / portTICK_RATE_MS);
-		uart1.printf("%f\t\t%ld\t\t%d\t\t%ld\r\n", 
-			motor.getPercent(),
-			motor.getSpd(), 
-			motor.getPos(),
-			encoder.getPos()
+		uart1.printf("%ld\t\t%lf\t\t%ld\t\t%f\r\n",
+			invertedPendulum.motor.getPos(),
+			invertedPendulum.motor.getRadian(),
+			invertedPendulum.encoder.getPos(),
+			invertedPendulum.encoder.getRadian()
 			);
 	}
 }
 
 
-long posMotor = 0;
-long posPendulum = 0;
 static void vPIDTask(void *pvParameters)
 {
-	static long desiredPosPendulum = 0;
 	while (1)
 	{
 		vTaskDelay(PID_REFRESH_INTERVAL*1000 / portTICK_RATE_MS);
-		
-		//刷新编码器和电机位置PID
-		encoder.refresh();
-		motor.refresh();
-		posMotor = motor.getPos();
-
-		posPendulum = -encoder.getPos();
-		if (posPendulum<1300 && posPendulum>700)
-		{
-			//横梁位置
-			desiredPosPendulum = posPID.refresh(-posMotor);
-			pendulumPID.setDesiredPoint(1000+desiredPosPendulum);
-			//摆杆角度PID
-			motor.setPosDiff(pendulumPID.refresh(posPendulum));
-		}
+		invertedPendulum.refresh();
 	}
 }
 
@@ -78,24 +192,8 @@ void setup()
     ebox_init();
     uart1.begin(115200);
 	led1.begin();
-	encoder.begin();
-	motor.begin();
 
-	//motor1.setPos(200);
-
-	//初始化摆杆角度PID
-	pendulumPID.setRefreshInterval(PID_REFRESH_INTERVAL);
-	pendulumPID.setWeights(0.4, 1.05, 0.0005);
-	pendulumPID.setOutputLowerLimit(-100);
-	pendulumPID.setOutputUpperLimit(100);
-	pendulumPID.setDesiredPoint(1000);
-
-	//初始化衡量位置PID
-	posPID.setRefreshInterval(PID_REFRESH_INTERVAL);
-	posPID.setWeights(0.04, 0, 0.045);
-	posPID.setOutputLowerLimit(-100);
-	posPID.setOutputUpperLimit(100);
-	posPID.setDesiredPoint(0);
+	invertedPendulum.begin();
 
 	//设置RTOS进程
 	set_systick_user_event_per_sec(configTICK_RATE_HZ);

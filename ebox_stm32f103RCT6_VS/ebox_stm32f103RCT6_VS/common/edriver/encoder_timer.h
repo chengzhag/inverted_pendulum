@@ -13,12 +13,14 @@ class EncoderTimer
 {
 	long pos;
 	short diff;
+	short oldCNT;
 	Gpio *pinA;
 	Gpio *pinB;
 	TIM_TypeDef *timer;
 	TIM_TimeBaseInitTypeDef TIM_TimeBaseStructure;
 	TIM_ICInitTypeDef TIM_ICInitStructure;
 public:
+	//numPerRound为每圈编码器位置的增量，用于计算编码器的绝对角度
 	EncoderTimer(TIM_TypeDef *TIMx);
 
 	//配置IO和寄存器
@@ -27,10 +29,7 @@ public:
 	//获取位置
 	long getPos();
 
-	//重置位置
-	void resetPos();
-
-	//读取timer寄存器并清空
+	//读取timer寄存器
 	void refresh();
 
 	//获取速度
