@@ -19,6 +19,7 @@
 #include "encoder_timer.h"
 #include "encoder_motor.h"
 #include "PID.hpp"
+#include <math.h>
 
 #define PID_REFRESH_INTERVAL 0.005
 #define M_PI		3.14159265358979323846
@@ -102,6 +103,7 @@ class InvertedPendulum
 	greg::PID pendulumPID, beamPID;
 	float refreshInt;
 	const float enableRadian;//进行pid反馈的角度范围，单方向，单位弧度
+	bool enableInvertedPID;
 public:
 	EncoderPendulum encoder;
 	MotorBeam motor;
@@ -113,25 +115,28 @@ public:
 		motor(TIMmotor, motorPinA, motorPinB, motorPinPwm, 
 			nprMotor, Encoder_Motor_Target_Position, refreshInterval),
 		refreshInt(refreshInterval),
-		enableRadian(M_PI / 4)
+		enableRadian(M_PI / 4),
+		enableInvertedPID(false)
 	{}
 
 	void begin()
 	{
 		encoder.begin();
-		motor.begin(1.5, 0.1, 0.02);
+		motor.begin(1.8, 1.75, 0.05);
+		setEnableInvertedPID(true);
 
 		//TODO: 修正角度限制、pid调参，将反馈值单位改成弧度
 		//初始化摆杆角度PID
 		pendulumPID.setRefreshInterval(refreshInt);
-		pendulumPID.setWeights(0.5, 0, 0);
+		pendulumPID.setWeights(1.5, 2, 0.006);
 		pendulumPID.setOutputLowerLimit(-2);
 		pendulumPID.setOutputUpperLimit(2);
 		pendulumPID.setDesiredPoint(0);
 
 		//初始化衡量位置PID
 		beamPID.setRefreshInterval(refreshInt);
-		beamPID.setWeights(0.1, 0, 0);
+		//beamPID.setWeights(0.018, 0, 0.006);
+		beamPID.setWeights(0, 0, 0);
 		beamPID.setOutputLowerLimit(-0.5);
 		beamPID.setOutputUpperLimit(0.5);
 		beamPID.setDesiredPoint(0);
@@ -146,14 +151,19 @@ public:
 		motor.refresh();
 
 		float radianPendulum = -encoder.getRadian();
-		if (radianPendulum < enableRadian && radianPendulum>-enableRadian)
+		if (radianPendulum < enableRadian && radianPendulum>-enableRadian && enableInvertedPID)
 		{
 			//横梁位置
-			desiredRadianPendulum = beamPID.refresh(-motor.getRadian());
+			desiredRadianPendulum = beamPID.refresh(atan(-motor.getRadian()));
 			pendulumPID.setDesiredPoint(desiredRadianPendulum);
 			//摆杆角度PID
-			motor.setRadianDiff(pendulumPID.refresh(radianPendulum));
+			motor.setRadianDiff(pendulumPID.refresh(tan(radianPendulum)));
 		}
+	}
+
+	void setEnableInvertedPID(bool b)
+	{
+		enableInvertedPID = b;
 	}
 };
 
@@ -161,18 +171,20 @@ InvertedPendulum invertedPendulum(TIM4, TIM3,
 	&PA2, &PA1, &PA0,
 	2000, 1560, PID_REFRESH_INTERVAL);
 
+//float motorRadian = 0;
 static void vDebugTask(void *pvParameters)
 {
 	while (1)
 	{
 		led1.toggle();
-		vTaskDelay(100 / portTICK_RATE_MS);
-		uart1.printf("%ld\t\t%lf\t\t%ld\t\t%f\r\n",
-			invertedPendulum.motor.getPos(),
-			invertedPendulum.motor.getRadian(),
-			invertedPendulum.encoder.getPos(),
-			invertedPendulum.encoder.getRadian()
-			);
+		vTaskDelay(10 / portTICK_RATE_MS);
+		//uart1.printf("%ld\t\t%lf\t\t%ld\t\t%f\r\n",
+		//	invertedPendulum.motor.getPos(),
+		//	invertedPendulum.motor.getRadian(),
+		//	invertedPendulum.encoder.getPos(),
+		//	invertedPendulum.encoder.getRadian()
+		//	);
+		//motorRadian = invertedPendulum.motor.getRadian();
 	}
 }
 
@@ -194,6 +206,8 @@ void setup()
 	led1.begin();
 
 	invertedPendulum.begin();
+	//invertedPendulum.setEnableInvertedPID(false);
+	//invertedPendulum.motor.setRadianDiff(0.5);
 
 	//设置RTOS进程
 	set_systick_user_event_per_sec(configTICK_RATE_HZ);

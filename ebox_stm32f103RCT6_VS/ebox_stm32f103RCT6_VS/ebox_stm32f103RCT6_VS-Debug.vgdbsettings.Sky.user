@@ -14,14 +14,14 @@
     <FavoriteEmbeddedRegisters />
     <LiveVariables>
       <LiveVariable>
-        <Expression>posPendulum</Expression>
-        <Type>SInt32</Type>
+        <Expression>motorRadian</Expression>
+        <Type>Float32</Type>
         <Enabled>true</Enabled>
         <Breakpoint>
           <ComparisonMode>Equals</ComparisonMode>
           <Enabled>false</Enabled>
         </Breakpoint>
-        <Plot>true</Plot>
+        <Plot>false</Plot>
       </LiveVariable>
     </LiveVariables>
   </DebugPreferences>
