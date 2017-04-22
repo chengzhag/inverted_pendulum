@@ -42,7 +42,7 @@ public:
 		float refreshInterval = 0.005);
 
 	//获取弧度值，以初始化点为0弧度点，范围-nan~+nan
-	double getRadian();
+	float getRadian();
 
 	//获取角速度，单位弧度
 	float getRadianDiff();
@@ -57,7 +57,8 @@ class InvertedPendulum
 	float enRadThres;//进行pid反馈的角度范围，单方向，单位弧度。初始pi/4
 	bool invertedPIDEnable;
 public:
-	greg::PID pendulumRadianPID, beamRadianPID;
+	greg::PID pendulumRadianPID, beamRadianPID,//角度PID
+		pendulumPalstancePID, beamPalstancePID;//角速度PID
 	EncoderPendulum encoder;
 	MotorBeam motor;
 
