@@ -20,6 +20,7 @@
 
 #define PID_REFRESH_INTERVAL 0.005
 
+
 Led led1(&PC13, 1);
 
 InvertedPendulum invertedPendulum(TIM4, TIM3,
@@ -27,12 +28,13 @@ InvertedPendulum invertedPendulum(TIM4, TIM3,
 	2000, 1560, PID_REFRESH_INTERVAL);
 
 //float motorRadian = 0;
+float pendulumRadian = 0;
 static void vDebugTask(void *pvParameters)
 {
 	while (1)
 	{
 		led1.toggle();
-		vTaskDelay(100 / portTICK_RATE_MS);
+		vTaskDelay(20 / portTICK_RATE_MS);
 		uart1.printf("%f\t%f\t%f\t%f\t%f\r\n",
 			invertedPendulum.getBeamRadian(),
 			invertedPendulum.getBeamPalstance(),
@@ -41,6 +43,7 @@ static void vDebugTask(void *pvParameters)
 			invertedPendulum.getPendulumAcceleration()
 		);
 		//motorRadian = invertedPendulum.getBeamRadian();
+		pendulumRadian= invertedPendulum.getPendulumRadian();
 	}
 }
 
@@ -62,7 +65,7 @@ void setup()
 	led1.begin();
 
 	invertedPendulum.begin();
-	//invertedPendulum.setEnableInvertedPID(false);
+	//invertedPendulum.setMode(Inverted_Pendulum_Mode_Disabled);
 	//invertedPendulum.motor.setRadianDiff(0.5);
 
 	//…Ë÷√RTOSΩ¯≥Ã

@@ -79,7 +79,7 @@ void EncoderMotor::setPos(long pos)
 
 void EncoderMotor::setPosDiff(short pos)
 {
-		setPos(getPos()+pos);
+	setPos(getPos() + pos);
 }
 
 void EncoderMotor::setSpd(short spd)

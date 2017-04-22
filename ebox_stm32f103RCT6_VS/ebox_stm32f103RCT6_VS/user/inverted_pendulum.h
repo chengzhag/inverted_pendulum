@@ -5,7 +5,8 @@
 #include "encoder_motor.h"
 #include "PID.hpp"
 
-#define M_PI		3.14159265358979323846
+#define PI		3.14159265358979323846
+#define INF_FLOAT 3.402823466e+38F
 
 
 class EncoderPendulum :public EncoderTimer
@@ -61,13 +62,14 @@ typedef enum
 {
 	Inverted_Pendulum_Mode_Disabled,
 	Inverted_Pendulum_Mode_Invert,
-	Inverted_Pendulum_Mode_Swing
+	Inverted_Pendulum_Mode_Swing,
+	Inverted_Pendulum_Mode_Swing_Invert
 }Inverted_Pendulum_Mode_Typedef;
 
 class InvertedPendulum
 {
 	float refreshInt;
-	float enRadThres;//进行pid反馈的角度范围，单方向，单位弧度。初始pi/4
+	float enRadThres;//进行pid反馈的角度范围，单方向，单位弧度。初始pi/3
 	int mode;
 public:
 	greg::PID pendulumRadianPID, beamRadianPID,//角度PID
