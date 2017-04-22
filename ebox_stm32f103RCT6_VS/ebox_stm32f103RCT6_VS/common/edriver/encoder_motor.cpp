@@ -1,6 +1,7 @@
 #include "encoder_motor.h"
 
-EncoderMotor::EncoderMotor(TIM_TypeDef *TIMx, Gpio *motorPinA, Gpio *motorPinB, Gpio *motorPinPwm, int controlTarget /*= Encoder_Motor_Target_Position*/, float refreshInterval /*= 0.01*/) :
+EncoderMotor::EncoderMotor(TIM_TypeDef *TIMx, Gpio *motorPinA, Gpio *motorPinB, Gpio *motorPinPwm, 
+	Encoder_Motor_Target_Typedef controlTarget /*= Encoder_Motor_Target_Position*/, float refreshInterval /*= 0.01*/) :
 	encoder(TIMx),
 	driver(motorPinA, motorPinB, motorPinPwm),
 	mode(controlTarget),

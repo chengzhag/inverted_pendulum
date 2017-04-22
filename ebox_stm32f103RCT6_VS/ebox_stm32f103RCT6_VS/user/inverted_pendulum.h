@@ -5,7 +5,6 @@
 #include "encoder_motor.h"
 #include "PID.hpp"
 
-#define PID_REFRESH_INTERVAL 0.005
 #define M_PI		3.14159265358979323846
 
 
@@ -45,7 +44,7 @@ public:
 	MotorBeam(TIM_TypeDef *TIMx,
 		Gpio *motorPinA, Gpio *motorPinB, Gpio *motorPinPwm,
 		unsigned int numPerRound = 1560,
-		int controlTarget = Encoder_Motor_Target_Position,
+		Encoder_Motor_Target_Typedef controlTarget = Encoder_Motor_Target_Position,
 		float refreshInterval = 0.005);
 
 	//获取弧度值，以初始化点为0弧度点，范围-nan~+nan
@@ -58,11 +57,18 @@ public:
 	void setRadianDiff(float radian);
 };
 
+typedef enum
+{
+	Inverted_Pendulum_Mode_Disabled,
+	Inverted_Pendulum_Mode_Invert,
+	Inverted_Pendulum_Mode_Swing
+}Inverted_Pendulum_Mode_Typedef;
+
 class InvertedPendulum
 {
 	float refreshInt;
 	float enRadThres;//进行pid反馈的角度范围，单方向，单位弧度。初始pi/4
-	bool invertedPIDEnable;
+	int mode;
 public:
 	greg::PID pendulumRadianPID, beamRadianPID,//角度PID
 		pendulumPalstancePID, beamPalstancePID;//角速度PID
@@ -79,8 +85,10 @@ public:
 	//对编码器、电机PID、倒立PID进行刷新
 	void refresh();
 
-	//设置倒立PID使能
-	void setInvertedPIDEnable(bool b);
+	//设置倒立摆模式
+	void setMode(Inverted_Pendulum_Mode_Typedef m) {
+		mode = m;
+	}
 
 	//设置进行pid反馈的角度范围
 	void setEnRadThres(float t);

@@ -30,7 +30,7 @@ public:
 
 	EncoderMotor(TIM_TypeDef *TIMx,
 		Gpio *motorPinA, Gpio *motorPinB, Gpio *motorPinPwm,
-		int controlTarget = Encoder_Motor_Target_Position,
+		Encoder_Motor_Target_Typedef controlTarget = Encoder_Motor_Target_Position,
 		float refreshInterval = 0.005);
 
 	//ÅäÖÃ±àÂëÆ÷ºÍÇý¶¯

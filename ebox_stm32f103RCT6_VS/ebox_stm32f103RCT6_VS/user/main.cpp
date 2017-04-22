@@ -18,6 +18,8 @@
 #include "led.h"
 #include "inverted_pendulum.h"
 
+#define PID_REFRESH_INTERVAL 0.005
+
 Led led1(&PC13, 1);
 
 InvertedPendulum invertedPendulum(TIM4, TIM3,
@@ -30,14 +32,15 @@ static void vDebugTask(void *pvParameters)
 	while (1)
 	{
 		led1.toggle();
-		vTaskDelay(10 / portTICK_RATE_MS);
-		//uart1.printf("%ld\t\t%lf\t\t%ld\t\t%f\r\n",
-		//	invertedPendulum.motor.getPos(),
-		//	invertedPendulum.motor.getRadian(),
-		//	invertedPendulum.encoder.getPos(),
-		//	invertedPendulum.encoder.getRadian()
-		//	);
-		//motorRadian = invertedPendulum.motor.getRadian();
+		vTaskDelay(100 / portTICK_RATE_MS);
+		uart1.printf("%f\t%f\t%f\t%f\t%f\r\n",
+			invertedPendulum.getBeamRadian(),
+			invertedPendulum.getBeamPalstance(),
+			invertedPendulum.getPendulumRadian(),
+			invertedPendulum.getPendulumPalstance(),
+			invertedPendulum.getPendulumAcceleration()
+		);
+		//motorRadian = invertedPendulum.getBeamRadian();
 	}
 }
 

@@ -37,7 +37,9 @@ float EncoderPendulum::getRadianDDiff()
 	return ddiff / (float)npr * 2 * M_PI;
 }
 
-MotorBeam::MotorBeam(TIM_TypeDef *TIMx, Gpio *motorPinA, Gpio *motorPinB, Gpio *motorPinPwm, unsigned int numPerRound /*= 1560*/, int controlTarget /*= Encoder_Motor_Target_Position*/, float refreshInterval /*= 0.005*/) :
+MotorBeam::MotorBeam(TIM_TypeDef *TIMx, Gpio *motorPinA, Gpio *motorPinB,
+	Gpio *motorPinPwm, unsigned int numPerRound /*= 1560*/,
+	Encoder_Motor_Target_Typedef controlTarget /*= Encoder_Motor_Target_Position*/, float refreshInterval /*= 0.005*/) :
 	EncoderMotor(TIMx, motorPinA, motorPinB, motorPinPwm,
 		controlTarget, refreshInterval),
 	npr(numPerRound)
@@ -60,13 +62,15 @@ void MotorBeam::setRadianDiff(float radian)
 	setPosDiff(radian / 2 / M_PI*npr);
 }
 
-InvertedPendulum::InvertedPendulum(TIM_TypeDef *TIMpendulum, TIM_TypeDef *TIMmotor, Gpio *motorPinA, Gpio *motorPinB, Gpio *motorPinPwm, unsigned int nprPendulum /*= 2000*/, unsigned int nprMotor /*= 1560*/, float refreshInterval /*= 0.005*/) :
+InvertedPendulum::InvertedPendulum(TIM_TypeDef *TIMpendulum, 
+	TIM_TypeDef *TIMmotor, Gpio *motorPinA, Gpio *motorPinB, Gpio *motorPinPwm,
+	unsigned int nprPendulum /*= 2000*/, unsigned int nprMotor /*= 1560*/, float refreshInterval /*= 0.005*/) :
 	encoder(TIMpendulum, nprPendulum),
 	motor(TIMmotor, motorPinA, motorPinB, motorPinPwm,
 		nprMotor, Encoder_Motor_Target_Position, refreshInterval),
 	refreshInt(refreshInterval),
 	enRadThres(M_PI / 4),
-	invertedPIDEnable(false)
+	mode(Inverted_Pendulum_Mode_Disabled)
 {
 
 }
@@ -75,7 +79,7 @@ void InvertedPendulum::begin()
 {
 	encoder.begin();
 	motor.begin(1.8, 1.75, 0.05);
-	setInvertedPIDEnable(true);
+	setMode(Inverted_Pendulum_Mode_Invert);
 
 	//初始化摆杆角度PID
 	pendulumRadianPID.setRefreshInterval(refreshInt);
@@ -114,30 +118,35 @@ void InvertedPendulum::refresh()
 	encoder.refresh();
 	motor.refresh();
 
-	//获取横梁、摆杆角度、角速度
-	float pendulumRadian = getPendulumRadian();
-	float pendulumPalstance = getPendulumPalstance();
-	float beamRadian = getBeamRadian();
-	float beamPalstance = getBeamPalstance();
-	if (pendulumRadian < enRadThres && pendulumRadian>-enRadThres //摆杆角度在范围之内
-		&& invertedPIDEnable)//如果使能倒立PID
+	if (mode != Inverted_Pendulum_Mode_Disabled)
 	{
 		float motorRadianDiff = 0;
-		//计算四个PID的输出，设置+-以改变控制方向
-		motorRadianDiff -= pendulumRadianPID.refresh(pendulumRadian);
-		motorRadianDiff -= pendulumPalstancePID.refresh(pendulumPalstance);
-		motorRadianDiff -= beamRadianPID.refresh(beamRadian);
-		motorRadianDiff -= beamPalstancePID.refresh(beamPalstance);
+		float pendulumRadian = getPendulumRadian();
+		//摆杆倒立PID的计算和反馈
+		if (mode == Inverted_Pendulum_Mode_Invert//如果使能倒立PID
+			&& pendulumRadian < enRadThres && pendulumRadian>-enRadThres)//摆杆角度在范围之内
+		{
+			//获取横梁、摆杆角度、角速度
+			float pendulumPalstance = getPendulumPalstance();
+			float beamRadian = getBeamRadian();
+			float beamPalstance = getBeamPalstance();
+			//计算四个PID的输出，设置+-以改变控制方向
+			motorRadianDiff -= pendulumRadianPID.refresh(pendulumRadian);
+			motorRadianDiff -= pendulumPalstancePID.refresh(pendulumPalstance);
+			motorRadianDiff -= beamRadianPID.refresh(beamRadian);
+			motorRadianDiff -= beamPalstancePID.refresh(beamPalstance);
+		}
+		else if (mode == Inverted_Pendulum_Mode_Swing)
+		{
+			//正反馈控制起摆
+			motorRadianDiff += 1.0 * getPendulumAcceleration();
+		}
 		//输出横梁角度增量
 		//TODO: 取消电机位置控制，减少响应延迟
 		motor.setRadianDiff(motorRadianDiff);
 	}
 }
 
-void InvertedPendulum::setInvertedPIDEnable(bool b)
-{
-	invertedPIDEnable = b;
-}
 
 void InvertedPendulum::setEnRadThres(float t)
 {
