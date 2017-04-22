@@ -70,7 +70,8 @@ InvertedPendulum::InvertedPendulum(TIM_TypeDef *TIMpendulum,
 		nprMotor, Encoder_Motor_Target_Position, refreshInterval),
 	refreshInt(refreshInterval),
 	enRadThres(PI / 3),
-	mode(Inverted_Pendulum_Mode_Disabled)
+	mode(Inverted_Pendulum_Mode_Disabled),
+	beamPalstance(0)
 {
 
 }
@@ -127,6 +128,8 @@ void InvertedPendulum::refresh()
 		if (mode == Inverted_Pendulum_Mode_Invert//如果使能倒立PID
 			&& pendulumRadian < enRadThres && pendulumRadian>-enRadThres)//摆杆角度在范围之内
 		{
+			beamRadianPID.setDesiredPoint(getBeamRadian() + beamPalstance*refreshInt);
+			beamPalstancePID.setDesiredPoint(beamPalstance);
 			//获取横梁、摆杆角度、角速度
 			float pendulumPalstance = getPendulumPalstance();
 			float beamRadian = getBeamRadian();
@@ -204,8 +207,8 @@ void InvertedPendulum::resetInvertPID()
 	beamPalstancePID.setDesiredPoint(0);
 }
 
-void InvertedPendulum::setBeamRadianDiff(float d)
+void InvertedPendulum::setBeamPalstance(float targetBeamPalstance)
 {
-	beamRadianPID.setDesiredPoint(getBeamRadian() + d);
+	beamPalstance = targetBeamPalstance;
 }
 

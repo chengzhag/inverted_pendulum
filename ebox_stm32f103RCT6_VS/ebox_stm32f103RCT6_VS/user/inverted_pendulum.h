@@ -71,6 +71,7 @@ class InvertedPendulum
 	float refreshInt;
 	float enRadThres;//进行pid反馈的角度范围，单方向，单位弧度。初始pi/3
 	int mode;
+	float beamPalstance;
 public:
 	greg::PID pendulumRadianPID, beamRadianPID,//角度PID
 		pendulumPalstancePID, beamPalstancePID;//角速度PID
@@ -114,7 +115,7 @@ public:
 	void resetInvertPID();
 
 	//设置横梁目标角度增量，倒立状态有效
-	void setBeamRadianDiff(float d);
+	void setBeamPalstance(float targetBeamPalstance);
 };
 
 #endif

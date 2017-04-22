@@ -44,6 +44,7 @@ static void vDebugTask(void *pvParameters)
 		);
 		//motorRadian = invertedPendulum.getBeamRadian();
 		pendulumRadian= invertedPendulum.getPendulumRadian();
+		invertedPendulum.setBeamPalstance(0.001);
 	}
 }
 
