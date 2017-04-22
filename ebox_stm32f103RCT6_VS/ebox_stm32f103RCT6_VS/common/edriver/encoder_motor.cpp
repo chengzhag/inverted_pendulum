@@ -58,7 +58,7 @@ long EncoderMotor::getPos()
 	return encoder.getPos();
 }
 
-short EncoderMotor::getSpd()
+short EncoderMotor::getPosDiff()
 {
 	return encoder.getDiff();
 }

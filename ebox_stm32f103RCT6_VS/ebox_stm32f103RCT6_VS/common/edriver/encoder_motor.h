@@ -46,7 +46,7 @@ public:
 	long getPos();
 
 	//获取速度
-	short getSpd();
+	short getPosDiff();
 
 	//获取输出百分比
 	float getPercent();

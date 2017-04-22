@@ -662,6 +662,9 @@
     <ClCompile Include="common\edriver\encoder_timer.cpp">
       <Filter>Source files\common\edriver</Filter>
     </ClCompile>
+    <ClCompile Include="user\inverted_pendulum.cpp">
+      <Filter>Source files\user</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\bigiot\bigiot.h">
