@@ -53,9 +53,6 @@ public:
 
 	//获取角速度
 	float getRadianDiff();
-
-	//设置目标角度弧度差
-	void setRadianDiff(float radian);
 };
 
 typedef enum

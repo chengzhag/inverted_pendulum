@@ -57,17 +57,13 @@ float MotorBeam::getRadianDiff()
 	return getPosDiff() / (float)npr * 2 * PI;
 }
 
-void MotorBeam::setRadianDiff(float radian)
-{
-	setPosDiff(radian / 2 / PI*npr);
-}
 
 InvertedPendulum::InvertedPendulum(TIM_TypeDef *TIMpendulum, 
 	TIM_TypeDef *TIMmotor, Gpio *motorPinA, Gpio *motorPinB, Gpio *motorPinPwm,
 	unsigned int nprPendulum /*= 2000*/, unsigned int nprMotor /*= 1560*/, float refreshInterval /*= 0.005*/) :
 	encoder(TIMpendulum, nprPendulum),
 	motor(TIMmotor, motorPinA, motorPinB, motorPinPwm,
-		nprMotor, Encoder_Motor_Target_Position, refreshInterval),
+		nprMotor, Encoder_Motor_PID_Disabled, refreshInterval),
 	refreshInt(refreshInterval),
 	enRadThres(PI / 3),
 	mode(Inverted_Pendulum_Mode_Disabled),
@@ -79,34 +75,37 @@ InvertedPendulum::InvertedPendulum(TIM_TypeDef *TIMpendulum,
 void InvertedPendulum::begin()
 {
 	encoder.begin();
-	motor.begin(5, 0, 0.06);
+	motor.begin();
 	setMode(Inverted_Pendulum_Mode_Invert);
 
 	//初始化摆杆角度PID
 	pendulumRadianPID.setRefreshInterval(refreshInt);
-	pendulumRadianPID.setWeights(0.5, 1.2, 0);
-	//pendulumRadianPID.setWeights(0.5, 1.2, 0.0018);
+	//pendulumRadianPID.setWeights(0.5, 1.2, 0);
+	pendulumRadianPID.setWeights(700, 1400, 0);
 	pendulumRadianPID.setOutputLowerLimit(-INF_FLOAT);
 	pendulumRadianPID.setOutputUpperLimit(INF_FLOAT);
 	pendulumRadianPID.setDesiredPoint(0);
 
 	//初始化摆杆角速度PID
 	pendulumPalstancePID.setRefreshInterval(refreshInt);
-	pendulumPalstancePID.setWeights(0.001, 0.0005, 0);
+	//pendulumPalstancePID.setWeights(0.001, 0.0005, 0);
+	pendulumPalstancePID.setWeights(10, 0, 0);
 	pendulumPalstancePID.setOutputLowerLimit(-INF_FLOAT);
 	pendulumPalstancePID.setOutputUpperLimit(INF_FLOAT);
 	pendulumPalstancePID.setDesiredPoint(0);
 
 	//初始化横梁角度PID
 	beamRadianPID.setRefreshInterval(refreshInt);
-	beamRadianPID.setWeights(0.08, 0.05, 0);
+	//beamRadianPID.setWeights(0.08, 0.05, 0);
+	beamRadianPID.setWeights(200, 100, 0);
 	beamRadianPID.setOutputLowerLimit(-INF_FLOAT);
 	beamRadianPID.setOutputUpperLimit(INF_FLOAT);
 	beamRadianPID.setDesiredPoint(0);
 
 	//初始化横梁角速度PID
 	beamPalstancePID.setRefreshInterval(refreshInt);
-	beamPalstancePID.setWeights(0.006, 0.0004, 0);
+	//beamPalstancePID.setWeights(0.006, 0.0004, 0);
+	beamPalstancePID.setWeights(3.5, 0, 0);
 	beamPalstancePID.setOutputLowerLimit(-INF_FLOAT);
 	beamPalstancePID.setOutputUpperLimit(INF_FLOAT);
 	beamPalstancePID.setDesiredPoint(0);
@@ -122,40 +121,42 @@ void InvertedPendulum::refresh()
 
 	if (mode != Inverted_Pendulum_Mode_Disabled)
 	{
-		float motorRadianDiff = 0;
+		float motorPercent = 0;
 		float pendulumRadian = getPendulumRadian();
 		//摆杆倒立PID的计算和反馈
 		if (mode == Inverted_Pendulum_Mode_Invert//如果使能倒立PID
 			&& pendulumRadian < enRadThres && pendulumRadian>-enRadThres)//摆杆角度在范围之内
 		{
-			beamRadianPID.setDesiredPoint(getBeamRadian() + beamPalstance*refreshInt);
-			beamPalstancePID.setDesiredPoint(beamPalstance);
+			//设置横梁目标速度
+			//beamRadianPID.setDesiredPoint(getBeamRadian() + beamPalstance*refreshInt);
+			//beamPalstancePID.setDesiredPoint(beamPalstance);
 			//获取横梁、摆杆角度、角速度
 			float pendulumPalstance = getPendulumPalstance();
 			float beamRadian = getBeamRadian();
 			float beamPalstance = getBeamPalstance();
 			//计算四个PID的输出，设置+-以改变控制方向
-			motorRadianDiff -= pendulumRadianPID.refresh(pendulumRadian);
-			motorRadianDiff -= pendulumPalstancePID.refresh(pendulumPalstance);
-			motorRadianDiff -= beamRadianPID.refresh(beamRadian);
-			motorRadianDiff -= beamPalstancePID.refresh(beamPalstance);
+			motorPercent -= pendulumRadianPID.refresh(pendulumRadian);
+			motorPercent -= pendulumPalstancePID.refresh(pendulumPalstance);
+			motorPercent -= beamRadianPID.refresh(beamRadian);
+			motorPercent -= beamPalstancePID.refresh(beamPalstance);
 			//输出横梁角度增量
 			//TODO: 取消电机位置控制，减少响应延迟
-			motor.setRadianDiff(motorRadianDiff);
+			motor.setPercent(motorPercent);
 		}
 		else if (mode == Inverted_Pendulum_Mode_Swing)
 		{
 			//正反馈控制起摆
-			motorRadianDiff += 1.0 * getPendulumAcceleration();
+			motorPercent += 1.0 * getPendulumAcceleration();
 			//输出横梁角度增量
 			//TODO: 取消电机位置控制，减少响应延迟
-			motor.setRadianDiff(motorRadianDiff);
+			motor.setPercent(motorPercent);
 		}
 		//如果超出角度控制范围，resetPID
 		if (pendulumRadian >= enRadThres || pendulumRadian<=-enRadThres)
 		{
 			resetInvertPID();
 			beamRadianPID.setDesiredPoint(getBeamRadian());
+			motor.setPercent(0);
 		}
 	}
 }

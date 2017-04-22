@@ -9,7 +9,8 @@
 typedef enum
 {
 	Encoder_Motor_Target_Position,
-	Encoder_Motor_Target_Speed
+	Encoder_Motor_Target_Speed,
+	Encoder_Motor_PID_Disabled
 }Encoder_Motor_Target_Typedef;
 
 
@@ -59,6 +60,9 @@ public:
 
 	//设置目标速度（速度控制模式）
 	void setSpd(short spd);
+
+	//设置输出百分比（PID失能模式）
+	void setPercent(float p);
 };
 
 #endif

@@ -23,6 +23,9 @@ EncoderMotor::EncoderMotor(TIM_TypeDef *TIMx, Gpio *motorPinA, Gpio *motorPinB, 
 		pid.setOutputUpperLimit(100);
 		pid.setDesiredPoint(0);
 		break;
+	case Encoder_Motor_PID_Disabled:
+
+		break;
 	default:
 		break;
 	}
@@ -46,12 +49,17 @@ void EncoderMotor::refresh()
 	if (mode == Encoder_Motor_Target_Position)
 	{
 		percent = pid.refresh(encoder.getPos());
+		driver.setPercent(percent);
 	}
 	else if (mode == Encoder_Motor_Target_Speed)
 	{
 		percent = pid.refresh(encoder.getDiff());
+		driver.setPercent(percent);
 	}
-	driver.setPercent(percent);
+	else if (mode == Encoder_Motor_PID_Disabled)
+	{
+
+	}
 }
 
 long EncoderMotor::getPos()
@@ -87,5 +95,13 @@ void EncoderMotor::setSpd(short spd)
 	if (mode == Encoder_Motor_Target_Speed)
 	{
 		pid.setDesiredPoint(spd);
+	}
+}
+
+void EncoderMotor::setPercent(float p)
+{
+	if (mode == Encoder_Motor_PID_Disabled)
+	{
+		driver.setPercent(p);
 	}
 }

@@ -44,7 +44,7 @@ static void vDebugTask(void *pvParameters)
 		);
 		//motorRadian = invertedPendulum.getBeamRadian();
 		pendulumRadian= invertedPendulum.getPendulumRadian();
-		invertedPendulum.setBeamPalstance(0.001);
+		//invertedPendulum.setBeamPalstance(0.001);
 	}
 }
 
@@ -67,7 +67,6 @@ void setup()
 
 	invertedPendulum.begin();
 	//invertedPendulum.setMode(Inverted_Pendulum_Mode_Disabled);
-	//invertedPendulum.motor.setRadianDiff(0.5);
 
 	//…Ë÷√RTOSΩ¯≥Ã
 	set_systick_user_event_per_sec(configTICK_RATE_HZ);
