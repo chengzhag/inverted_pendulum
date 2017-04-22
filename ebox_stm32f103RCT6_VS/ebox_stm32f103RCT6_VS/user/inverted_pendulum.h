@@ -85,6 +85,20 @@ public:
 	//设置进行pid反馈的角度范围
 	void setEnRadThres(float t);
 
+	//获取摆杆角度（弧度）
+	float getPendulumRadian();
+
+	//获取摆杆角速度（弧度/秒）
+	float getPendulumPalstance();
+
+	//获取摆杆角加速度（弧度/秒^2）
+	float getPendulumAcceleration();
+
+	//获取横梁角度（弧度）
+	float getBeamRadian();
+
+	//获取横梁角速度（弧度/秒）
+	float getBeamPalstance();
 };
 
 #endif

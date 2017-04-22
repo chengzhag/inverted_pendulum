@@ -115,10 +115,10 @@ void InvertedPendulum::refresh()
 	motor.refresh();
 
 	//获取横梁、摆杆角度、角速度
-	float pendulumRadian = encoder.getRadian();
-	float pendulumPalstance = encoder.getRadianDiff();
-	float beamRadian = motor.getRadian();
-	float beamPalstance = motor.getRadianDiff();
+	float pendulumRadian = getPendulumRadian();
+	float pendulumPalstance = getPendulumPalstance();
+	float beamRadian = getBeamRadian();
+	float beamPalstance = getBeamPalstance();
 	if (pendulumRadian < enRadThres && pendulumRadian>-enRadThres //摆杆角度在范围之内
 		&& invertedPIDEnable)//如果使能倒立PID
 	{
@@ -147,4 +147,28 @@ void InvertedPendulum::setEnRadThres(float t)
 	}
 }
 
+float InvertedPendulum::getPendulumRadian()
+{
+	return encoder.getRadian();
+}
+
+float InvertedPendulum::getPendulumPalstance()
+{
+	return encoder.getRadianDiff() / refreshInt;
+}
+
+float InvertedPendulum::getPendulumAcceleration()
+{
+	return encoder.getRadianDDiff() / refreshInt / refreshInt;
+}
+
+float InvertedPendulum::getBeamRadian()
+{
+	return motor.getRadian();
+}
+
+float InvertedPendulum::getBeamPalstance()
+{
+	return motor.getRadianDiff() / refreshInt;
+}
 
