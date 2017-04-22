@@ -67,7 +67,8 @@ InvertedPendulum::InvertedPendulum(TIM_TypeDef *TIMpendulum,
 	refreshInt(refreshInterval),
 	enRadThres(PI / 3),
 	mode(Inverted_Pendulum_Mode_Disabled),
-	beamPalstance(0)
+	targetBeamPalstance(0),
+	targetBeamRadian(0)
 {
 
 }
@@ -80,7 +81,6 @@ void InvertedPendulum::begin()
 
 	//初始化摆杆角度PID
 	pendulumRadianPID.setRefreshInterval(refreshInt);
-	//pendulumRadianPID.setWeights(0.5, 1.2, 0);
 	pendulumRadianPID.setWeights(700, 1400, 0);
 	pendulumRadianPID.setOutputLowerLimit(-INF_FLOAT);
 	pendulumRadianPID.setOutputUpperLimit(INF_FLOAT);
@@ -88,7 +88,6 @@ void InvertedPendulum::begin()
 
 	//初始化摆杆角速度PID
 	pendulumPalstancePID.setRefreshInterval(refreshInt);
-	//pendulumPalstancePID.setWeights(0.001, 0.0005, 0);
 	pendulumPalstancePID.setWeights(10, 0, 0);
 	pendulumPalstancePID.setOutputLowerLimit(-INF_FLOAT);
 	pendulumPalstancePID.setOutputUpperLimit(INF_FLOAT);
@@ -96,7 +95,6 @@ void InvertedPendulum::begin()
 
 	//初始化横梁角度PID
 	beamRadianPID.setRefreshInterval(refreshInt);
-	//beamRadianPID.setWeights(0.08, 0.05, 0);
 	beamRadianPID.setWeights(200, 100, 0);
 	beamRadianPID.setOutputLowerLimit(-INF_FLOAT);
 	beamRadianPID.setOutputUpperLimit(INF_FLOAT);
@@ -104,8 +102,7 @@ void InvertedPendulum::begin()
 
 	//初始化横梁角速度PID
 	beamPalstancePID.setRefreshInterval(refreshInt);
-	//beamPalstancePID.setWeights(0.006, 0.0004, 0);
-	beamPalstancePID.setWeights(3.5, 0, 0);
+	beamPalstancePID.setWeights(6, 10, 0);
 	beamPalstancePID.setOutputLowerLimit(-INF_FLOAT);
 	beamPalstancePID.setOutputUpperLimit(INF_FLOAT);
 	beamPalstancePID.setDesiredPoint(0);
@@ -123,24 +120,37 @@ void InvertedPendulum::refresh()
 	{
 		float motorPercent = 0;
 		float pendulumRadian = getPendulumRadian();
+
 		//摆杆倒立PID的计算和反馈
 		if (mode == Inverted_Pendulum_Mode_Invert//如果使能倒立PID
 			&& pendulumRadian < enRadThres && pendulumRadian>-enRadThres)//摆杆角度在范围之内
 		{
+
 			//设置横梁目标速度
-			//beamRadianPID.setDesiredPoint(getBeamRadian() + beamPalstance*refreshInt);
-			//beamPalstancePID.setDesiredPoint(beamPalstance);
+			//对横梁实际角度与目标角度进行判断
+			if (abs(getBeamRadian()-getTargetBeamRadian())<PI)
+			{
+				setTargetBeamRadian(getTargetBeamRadian() + targetBeamPalstance*refreshInt);
+			}
+			else
+			{
+				setTargetBeamRadian(getBeamRadian() + PI);
+			}
+			beamRadianPID.setDesiredPoint(getTargetBeamRadian());
+			beamPalstancePID.setDesiredPoint(targetBeamPalstance);
+
 			//获取横梁、摆杆角度、角速度
 			float pendulumPalstance = getPendulumPalstance();
 			float beamRadian = getBeamRadian();
 			float beamPalstance = getBeamPalstance();
+
 			//计算四个PID的输出，设置+-以改变控制方向
 			motorPercent -= pendulumRadianPID.refresh(pendulumRadian);
 			motorPercent -= pendulumPalstancePID.refresh(pendulumPalstance);
 			motorPercent -= beamRadianPID.refresh(beamRadian);
 			motorPercent -= beamPalstancePID.refresh(beamPalstance);
+
 			//输出横梁角度增量
-			//TODO: 取消电机位置控制，减少响应延迟
 			motor.setPercent(motorPercent);
 		}
 		else if (mode == Inverted_Pendulum_Mode_Swing)
@@ -148,14 +158,13 @@ void InvertedPendulum::refresh()
 			//正反馈控制起摆
 			motorPercent += 1.0 * getPendulumAcceleration();
 			//输出横梁角度增量
-			//TODO: 取消电机位置控制，减少响应延迟
 			motor.setPercent(motorPercent);
 		}
 		//如果超出角度控制范围，resetPID
 		if (pendulumRadian >= enRadThres || pendulumRadian<=-enRadThres)
 		{
 			resetInvertPID();
-			beamRadianPID.setDesiredPoint(getBeamRadian());
+			setTargetBeamRadian(getBeamRadian());
 			motor.setPercent(0);
 		}
 	}
@@ -203,13 +212,13 @@ void InvertedPendulum::resetInvertPID()
 	beamPalstancePID.reset();
 
 	pendulumRadianPID.setDesiredPoint(0);
-	beamRadianPID.setDesiredPoint(0);
+	setTargetBeamRadian(0);
 	pendulumPalstancePID.setDesiredPoint(0);
 	beamPalstancePID.setDesiredPoint(0);
 }
 
-void InvertedPendulum::setBeamPalstance(float targetBeamPalstance)
+void InvertedPendulum::setTargetBeamPalstance(float desiredBeamPalstance)
 {
-	beamPalstance = targetBeamPalstance;
+	targetBeamPalstance = desiredBeamPalstance;
 }
 

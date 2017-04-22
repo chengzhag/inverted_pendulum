@@ -18,7 +18,7 @@
 #include "led.h"
 #include "inverted_pendulum.h"
 
-#define PID_REFRESH_INTERVAL 0.005
+#define PID_REFRESH_INTERVAL 0.01
 
 
 Led led1(&PC13, 1);
@@ -44,7 +44,7 @@ static void vDebugTask(void *pvParameters)
 		);
 		//motorRadian = invertedPendulum.getBeamRadian();
 		pendulumRadian= invertedPendulum.getPendulumRadian();
-		//invertedPendulum.setBeamPalstance(0.001);
+		invertedPendulum.setTargetBeamPalstance(0);
 	}
 }
 

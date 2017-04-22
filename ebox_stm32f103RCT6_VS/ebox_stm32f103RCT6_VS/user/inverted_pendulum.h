@@ -4,6 +4,7 @@
 #include "encoder_timer.h"
 #include "encoder_motor.h"
 #include "PID.hpp"
+#include "math.h"
 
 #define PI		3.14159265358979323846
 #define INF_FLOAT 3.402823466e+38F
@@ -68,7 +69,8 @@ class InvertedPendulum
 	float refreshInt;
 	float enRadThres;//进行pid反馈的角度范围，单方向，单位弧度。初始pi/3
 	int mode;
-	float beamPalstance;
+	float targetBeamPalstance;
+	float targetBeamRadian;
 public:
 	greg::PID pendulumRadianPID, beamRadianPID,//角度PID
 		pendulumPalstancePID, beamPalstancePID;//角速度PID
@@ -112,7 +114,20 @@ public:
 	void resetInvertPID();
 
 	//设置横梁目标角度增量，倒立状态有效
-	void setBeamPalstance(float targetBeamPalstance);
+	void setTargetBeamPalstance(float desiredBeamPalstance);
+
+	//设置横梁目标角度，倒立状态有效
+	void setTargetBeamRadian(float desiredBeamRadian)
+	{
+		targetBeamRadian = desiredBeamRadian;
+		beamRadianPID.setDesiredPoint(desiredBeamRadian);
+	}
+	
+	//获取横梁目标角度
+	float getTargetBeamRadian()
+	{
+		return targetBeamRadian;
+	}
 };
 
 #endif

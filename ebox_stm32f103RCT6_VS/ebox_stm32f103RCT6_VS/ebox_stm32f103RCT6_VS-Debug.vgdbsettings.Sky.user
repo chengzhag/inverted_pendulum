@@ -21,7 +21,17 @@
           <ComparisonMode>Equals</ComparisonMode>
           <Enabled>false</Enabled>
         </Breakpoint>
-        <Plot>true</Plot>
+        <Plot>false</Plot>
+      </LiveVariable>
+      <LiveVariable>
+        <Expression>invertedPendulum</Expression>
+        <Type>HexInt32</Type>
+        <Enabled>true</Enabled>
+        <Breakpoint>
+          <ComparisonMode>Equals</ComparisonMode>
+          <Enabled>false</Enabled>
+        </Breakpoint>
+        <Plot>false</Plot>
       </LiveVariable>
     </LiveVariables>
   </DebugPreferences>
