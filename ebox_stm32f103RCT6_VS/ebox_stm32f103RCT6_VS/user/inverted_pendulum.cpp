@@ -7,6 +7,13 @@ EncoderPendulum::EncoderPendulum(TIM_TypeDef *TIMx, unsigned int numPerRound /*=
 
 }
 
+void EncoderPendulum::refresh()
+{
+	oldDiff = getDiff();
+	EncoderTimer::refresh();
+	ddiff = getDiff() - oldDiff;
+}
+
 float EncoderPendulum::getRadian()
 {
 	long posTemp = getPos();
@@ -23,6 +30,11 @@ float EncoderPendulum::getRadian()
 float EncoderPendulum::getRadianDiff()
 {
 	return getDiff() / (float)npr * 2 * M_PI;
+}
+
+float EncoderPendulum::getRadianDDiff()
+{
+	return ddiff / (float)npr * 2 * M_PI;
 }
 
 MotorBeam::MotorBeam(TIM_TypeDef *TIMx, Gpio *motorPinA, Gpio *motorPinB, Gpio *motorPinPwm, unsigned int numPerRound /*= 1560*/, int controlTarget /*= Encoder_Motor_Target_Position*/, float refreshInterval /*= 0.005*/) :

@@ -12,7 +12,8 @@
 class EncoderPendulum :public EncoderTimer
 {
 	unsigned int npr;//每圈pos的增量
-
+	short oldDiff;
+	short ddiff;
 public:
 
 	//将增量旋转编码器作为绝对编码器使用
@@ -20,11 +21,17 @@ public:
 	EncoderPendulum(TIM_TypeDef *TIMx,
 		unsigned int numPerRound = 2000);
 
+	//隐藏父类refresh()函数，对角加速度进行计算
+	void refresh();
+
 	//获取绝对弧度值，以初始化点为+-pi点，范围-pi~pi
 	float getRadian();
 
-	//获取角速度，单位弧度
+	//获取角速度
 	float getRadianDiff();
+
+	//获取角加速度
+	float getRadianDDiff();
 };
 
 class MotorBeam :public EncoderMotor
@@ -44,7 +51,7 @@ public:
 	//获取弧度值，以初始化点为0弧度点，范围-nan~+nan
 	float getRadian();
 
-	//获取角速度，单位弧度
+	//获取角速度
 	float getRadianDiff();
 
 	//设置目标角度弧度差
@@ -77,6 +84,7 @@ public:
 
 	//设置进行pid反馈的角度范围
 	void setEnRadThres(float t);
+
 };
 
 #endif
