@@ -109,6 +109,12 @@ public:
 
 	//获取横梁角速度（弧度/秒）
 	float getBeamPalstance();
+
+	//重置PID累计值
+	void resetInvertPID();
+
+	//设置横梁目标角度增量，倒立状态有效
+	void setBeamRadianDiff(float d);
 };
 
 #endif

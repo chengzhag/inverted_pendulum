@@ -105,7 +105,7 @@ void InvertedPendulum::begin()
 
 	//初始化横梁角速度PID
 	beamPalstancePID.setRefreshInterval(refreshInt);
-	beamPalstancePID.setWeights(0.006, 0.0005, 0);
+	beamPalstancePID.setWeights(0.006, 0.0004, 0);
 	beamPalstancePID.setOutputLowerLimit(-INF_FLOAT);
 	beamPalstancePID.setOutputUpperLimit(INF_FLOAT);
 	beamPalstancePID.setDesiredPoint(0);
@@ -148,6 +148,12 @@ void InvertedPendulum::refresh()
 			//TODO: 取消电机位置控制，减少响应延迟
 			motor.setRadianDiff(motorRadianDiff);
 		}
+		//如果超出角度控制范围，resetPID
+		if (pendulumRadian >= enRadThres || pendulumRadian<=-enRadThres)
+		{
+			resetInvertPID();
+			beamRadianPID.setDesiredPoint(getBeamRadian());
+		}
 	}
 }
 
@@ -183,5 +189,23 @@ float InvertedPendulum::getBeamRadian()
 float InvertedPendulum::getBeamPalstance()
 {
 	return motor.getRadianDiff() / refreshInt;
+}
+
+void InvertedPendulum::resetInvertPID()
+{
+	pendulumRadianPID.reset();
+	beamRadianPID.reset();
+	pendulumPalstancePID.reset();
+	beamPalstancePID.reset();
+
+	pendulumRadianPID.setDesiredPoint(0);
+	beamRadianPID.setDesiredPoint(0);
+	pendulumPalstancePID.setDesiredPoint(0);
+	beamPalstancePID.setDesiredPoint(0);
+}
+
+void InvertedPendulum::setBeamRadianDiff(float d)
+{
+	beamRadianPID.setDesiredPoint(getBeamRadian() + d);
 }
 

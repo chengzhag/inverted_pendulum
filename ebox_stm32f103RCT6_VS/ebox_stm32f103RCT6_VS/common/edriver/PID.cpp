@@ -75,4 +75,13 @@ namespace greg {
 		}
 		return last_output;
 	}
+
+	void PID::reset()
+	{
+		last_error = 0;
+		last_output = 0;
+		integral = 0;
+		error = 0;
+	}
+
 };

@@ -65,5 +65,8 @@ namespace greg {
 		/// The feedback_input is the value from the feedback.
 		/// The returned value is the output value of the filter.
 		float refresh(const float &feedback_input);
+
+		/// ÷ÿ÷√PID
+		void reset();
 	};
 };
