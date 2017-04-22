@@ -1255,6 +1255,9 @@
     <ClInclude Include="common\edriver\encoder_timer.h">
       <Filter>Header files\common\edriver</Filter>
     </ClInclude>
+    <ClInclude Include="user\inverted_pendulum.h">
+      <Filter>Header files\user</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Makefile" />

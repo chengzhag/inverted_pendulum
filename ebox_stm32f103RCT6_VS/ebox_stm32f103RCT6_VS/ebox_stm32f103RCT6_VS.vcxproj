@@ -390,6 +390,7 @@
     <ClInclude Include="user\app_cfg.h" />
     <ClInclude Include="user\bsp.h" />
     <ClInclude Include="user\FreeRTOSConfig.h" />
+    <ClInclude Include="user\inverted_pendulum.h" />
     <ClInclude Include="user\os_cfg.h" />
   </ItemGroup>
   <ItemGroup>
