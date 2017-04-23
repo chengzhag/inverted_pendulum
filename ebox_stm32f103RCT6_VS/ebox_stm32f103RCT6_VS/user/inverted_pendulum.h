@@ -132,6 +132,9 @@ public:
 	//设置倒立摆模式
 	void setMode(Inverted_Pendulum_Mode_Typedef m);
 
+	//获取倒立摆模式
+	int getMode();
+
 	//设置进行pid反馈的角度范围
 	void setEnRadThres(float t);
 

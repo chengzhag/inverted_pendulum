@@ -323,6 +323,12 @@ void InvertedPendulum::setMode(Inverted_Pendulum_Mode_Typedef m)
 	mode = m;
 }
 
+
+int InvertedPendulum::getMode()
+{
+	return mode;
+}
+
 void InvertedPendulum::setEnRadThres(float t)
 {
 	if (t < PI / 2 && t>0)
