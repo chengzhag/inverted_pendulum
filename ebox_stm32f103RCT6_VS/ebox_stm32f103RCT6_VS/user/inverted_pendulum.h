@@ -59,10 +59,19 @@ public:
 typedef enum
 {
 	Inverted_Pendulum_Mode_Disabled,
-	Inverted_Pendulum_Mode_Invert,
+	Inverted_Pendulum_Mode_Swing_Begin,
 	Inverted_Pendulum_Mode_Swing,
-	Inverted_Pendulum_Mode_Swing_Invert
+	Inverted_Pendulum_Mode_Invert,
+	Inverted_Pendulum_Mode_Invert_Swing,//如果Invert状态倒下即跳转到Swing状态
+	Inverted_Pendulum_Mode_Swing_Invert_Begin,
+	Inverted_Pendulum_Mode_Swing_Invert,
+	Inverted_Pendulum_Mode_Round,
 }Inverted_Pendulum_Mode_Typedef;
+
+class InvertedPendulumFSM
+{
+
+};
 
 class InvertedPendulum
 {
@@ -87,10 +96,14 @@ public:
 	//对编码器、电机PID、倒立PID进行刷新
 	void refresh();
 
+	//单独对控制倒立的四个PID进行refresh，包括目标速度的设置
+	void refreshPID();
+
+	//对起摆过程进行反馈
+	void refreshSwing();
+
 	//设置倒立摆模式
-	void setMode(Inverted_Pendulum_Mode_Typedef m) {
-		mode = m;
-	}
+	void setMode(Inverted_Pendulum_Mode_Typedef m);
 
 	//设置进行pid反馈的角度范围
 	void setEnRadThres(float t);
@@ -111,23 +124,16 @@ public:
 	float getBeamPalstance();
 
 	//重置PID累计值
-	void resetInvertPID();
+	void resetPID();
 
 	//设置横梁目标角度增量，倒立状态有效
 	void setTargetBeamPalstance(float desiredBeamPalstance);
 
 	//设置横梁目标角度，倒立状态有效
-	void setTargetBeamRadian(float desiredBeamRadian)
-	{
-		targetBeamRadian = desiredBeamRadian;
-		beamRadianPID.setDesiredPoint(desiredBeamRadian);
-	}
+	void setTargetBeamRadian(float desiredBeamRadian);
 	
 	//获取横梁目标角度
-	float getTargetBeamRadian()
-	{
-		return targetBeamRadian;
-	}
+	float getTargetBeamRadian();
 };
 
 #endif

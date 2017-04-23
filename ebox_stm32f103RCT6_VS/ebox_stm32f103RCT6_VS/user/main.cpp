@@ -27,8 +27,10 @@ InvertedPendulum invertedPendulum(TIM4, TIM3,
 	&PA2, &PA1, &PA0,
 	2000, 1560, PID_REFRESH_INTERVAL);
 
+//用于观察波形的全局变量
 //float motorRadian = 0;
-float pendulumRadian = 0;
+//float pendulumRadian = 0;
+
 static void vDebugTask(void *pvParameters)
 {
 	while (1)
@@ -42,9 +44,10 @@ static void vDebugTask(void *pvParameters)
 			invertedPendulum.getPendulumPalstance(),
 			invertedPendulum.getPendulumAcceleration()
 		);
+
+		//用于观察波形的全局变量
 		//motorRadian = invertedPendulum.getBeamRadian();
-		pendulumRadian= invertedPendulum.getPendulumRadian();
-		invertedPendulum.setTargetBeamPalstance(0);
+		//pendulumRadian= invertedPendulum.getPendulumRadian();
 	}
 }
 
@@ -66,7 +69,8 @@ void setup()
 	led1.begin();
 
 	invertedPendulum.begin();
-	//invertedPendulum.setMode(Inverted_Pendulum_Mode_Disabled);
+	invertedPendulum.setMode(Inverted_Pendulum_Mode_Disabled);
+	//invertedPendulum.setTargetBeamPalstance(0);
 
 	//设置RTOS进程
 	set_systick_user_event_per_sec(configTICK_RATE_HZ);
