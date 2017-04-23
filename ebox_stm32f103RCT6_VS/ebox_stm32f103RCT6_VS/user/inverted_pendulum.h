@@ -5,6 +5,7 @@
 #include "encoder_motor.h"
 #include "PID.hpp"
 #include "math.h"
+#include "fsm.h"
 
 #define PI		3.14159265358979323846
 #define INF_FLOAT 3.402823466e+38F
@@ -68,10 +69,8 @@ typedef enum
 	Inverted_Pendulum_Mode_Round,
 }Inverted_Pendulum_Mode_Typedef;
 
-class InvertedPendulumFSM
-{
 
-};
+
 
 class InvertedPendulum
 {

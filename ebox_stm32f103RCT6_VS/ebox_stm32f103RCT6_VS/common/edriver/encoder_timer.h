@@ -1,4 +1,5 @@
-#pragma once
+#ifndef  __ENCODER_TIMER
+#define  __ENCODER_TIMER
 
 #include "stm32f10x_tim.h"
 #include "stm32f10x_rcc.h"
@@ -35,3 +36,5 @@ public:
 	//获取速度
 	short getDiff();
 };
+
+#endif

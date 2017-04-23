@@ -1,4 +1,5 @@
-#pragma once
+#ifndef  __PID
+#define  __PID
 
 namespace greg {
 	class PID {
@@ -70,3 +71,5 @@ namespace greg {
 		void reset();
 	};
 };
+
+#endif
