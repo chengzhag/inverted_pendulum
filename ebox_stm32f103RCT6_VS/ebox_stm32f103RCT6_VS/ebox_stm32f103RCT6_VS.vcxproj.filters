@@ -665,9 +665,6 @@
     <ClCompile Include="user\inverted_pendulum.cpp">
       <Filter>Source files\user</Filter>
     </ClCompile>
-    <ClCompile Include="common\edriver\fsm.cpp">
-      <Filter>Source files\common\edriver</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="common\bigiot\bigiot.h">
@@ -1263,9 +1260,6 @@
     </ClInclude>
     <ClInclude Include="user\inverted_pendulum.h">
       <Filter>Header files\user</Filter>
-    </ClInclude>
-    <ClInclude Include="common\edriver\fsm.h">
-      <Filter>Header files\common\edriver</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

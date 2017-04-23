@@ -58,6 +58,172 @@ float MotorBeam::getRadianDiff()
 }
 
 
+void InvertedPendulum::fsmSetActiveState(void(InvertedPendulum::*activeState)())
+{
+	fsmActiveState = activeState;
+}
+
+void InvertedPendulum::fsmRefresh()
+{
+	if (fsmActiveState != NULL)
+	{
+		(this->*fsmActiveState)();
+	}
+}
+
+void InvertedPendulum::stateDisabled()
+{
+	motor.setPercent(0);
+	float pendulumRadian = getPendulumRadian();
+
+	//跳转
+	if ((mode == Inverted_Pendulum_Mode_Swing
+		|| mode == Inverted_Pendulum_Mode_SwingInvert))
+	{
+		fsmSetActiveState(&InvertedPendulum::stateSwingBegin);
+	}
+	if (mode == Inverted_Pendulum_Mode_Invert
+		//conditionDisabledToInvert
+		&& (pendulumRadian < enRadThres && pendulumRadian>-enRadThres))
+	{
+		entryInvert();
+		fsmSetActiveState(&InvertedPendulum::stateInvert);
+	}
+	if (mode == Inverted_Pendulum_Mode_Round
+		//conditionDisabledToRound
+		&& (pendulumRadian < enRadThres && pendulumRadian>-enRadThres))
+	{
+		entryRound();
+		fsmSetActiveState(&InvertedPendulum::stateRound);
+	}
+}
+
+void InvertedPendulum::stateSwingBegin()
+{
+	motor.setPercent(50);
+	float pendulumRadian = getPendulumRadian();
+
+	//跳转
+	if ((mode == Inverted_Pendulum_Mode_Swing
+		|| mode == Inverted_Pendulum_Mode_SwingInvert)
+		//conditionBeginToSwing
+		&& (pendulumRadian < PI / 1.5 && pendulumRadian>-PI / 1.5))
+	{
+		fsmSetActiveState(&InvertedPendulum::stateSwing);
+	}
+	if (mode == Inverted_Pendulum_Mode_Disabled)
+	{
+		fsmSetActiveState(&InvertedPendulum::stateDisabled);
+	}
+}
+
+void InvertedPendulum::entryInvert()
+{
+	resetPID();
+	setTargetBeamRadian(getBeamRadian());
+	setTargetBeamPalstance(0);
+}
+
+void InvertedPendulum::stateInvert()
+{
+	refreshPID();
+	float pendulumRadian = getPendulumRadian();
+
+	//跳转
+	if ((mode == Inverted_Pendulum_Mode_Invert
+		//conditionInvertToDisabled
+		&& (pendulumRadian >= enRadThres || pendulumRadian <= -enRadThres))
+		|| mode == Inverted_Pendulum_Mode_Disabled)
+	{
+		fsmSetActiveState(&InvertedPendulum::stateDisabled);
+	}
+	if (mode == Inverted_Pendulum_Mode_Round)
+	{
+		fsmSetActiveState(&InvertedPendulum::stateRound);
+	}
+	if (mode == Inverted_Pendulum_Mode_SwingInvert
+		//conditionInvertToSwing
+		&& (pendulumRadian >= enRadThres || pendulumRadian <= -enRadThres))
+	{
+		fsmSetActiveState(&InvertedPendulum::stateSwing);
+	}
+}
+
+void InvertedPendulum::entryRound()
+{
+	resetPID();
+	setTargetBeamRadian(getBeamRadian());
+}
+
+void InvertedPendulum::stateRound()
+{
+	float pendulumRadian = getPendulumRadian();
+
+	//设置横梁目标速度
+	//对横梁实际角度与目标角度进行判断
+	if (abs(getBeamRadian() - getTargetBeamRadian()) < PI)
+	{
+		setTargetBeamRadian(getTargetBeamRadian() + targetBeamPalstance*refreshInt);
+	}
+	else
+	{
+		if (getBeamRadian() - getTargetBeamRadian() > 0)
+		{
+			setTargetBeamRadian(getBeamRadian() - PI);
+		}
+		else
+		{
+			setTargetBeamRadian(getBeamRadian() + PI);
+		}
+	}
+	beamRadianPID.setDesiredPoint(getTargetBeamRadian());
+	beamPalstancePID.setDesiredPoint(targetBeamPalstance);
+
+	refreshPID();
+
+	//跳转
+	if (mode == Inverted_Pendulum_Mode_Round)
+	{
+		fsmSetActiveState(&InvertedPendulum::stateRound);
+	}
+	if ((mode == Inverted_Pendulum_Mode_Round
+		//conditionRoundToDisabled
+		&& (pendulumRadian >= enRadThres || pendulumRadian <= -enRadThres))
+		|| mode == Inverted_Pendulum_Mode_Disabled)
+	{
+		fsmSetActiveState(&InvertedPendulum::stateDisabled);
+	}
+}
+
+void InvertedPendulum::stateSwing()
+{
+	refreshSwing();
+	float pendulumRadian = getPendulumRadian();
+
+	//跳转
+	if (mode == Inverted_Pendulum_Mode_Disabled)
+	{
+		fsmSetActiveState(&InvertedPendulum::stateDisabled);
+	}
+	if ((mode == Inverted_Pendulum_Mode_Swing
+		|| mode == Inverted_Pendulum_Mode_SwingInvert)
+		//conditionSwingToBegin
+		&& ((pendulumRadian > PI*0.8 || pendulumRadian < -PI*0.8)
+			&& abs(getBeamPalstance()) < 0.1)
+		)
+	{
+		fsmSetActiveState(&InvertedPendulum::stateSwingBegin);
+	}
+	if (mode == Inverted_Pendulum_Mode_SwingInvert
+		//conditionSwingToInvert
+		&& pendulumRadian < PI / 12 && pendulumRadian>-PI / 12
+		)
+	{
+		entryInvert();
+		fsmSetActiveState(&InvertedPendulum::stateInvert);
+	}
+}
+
 InvertedPendulum::InvertedPendulum(TIM_TypeDef *TIMpendulum, 
 	TIM_TypeDef *TIMmotor, Gpio *motorPinA, Gpio *motorPinB, Gpio *motorPinPwm,
 	unsigned int nprPendulum /*= 2000*/, unsigned int nprMotor /*= 1560*/, float refreshInterval /*= 0.005*/) :
@@ -70,7 +236,7 @@ InvertedPendulum::InvertedPendulum(TIM_TypeDef *TIMpendulum,
 	targetBeamPalstance(0),
 	targetBeamRadian(0)
 {
-
+	fsmSetActiveState(&InvertedPendulum::stateDisabled);
 }
 
 void InvertedPendulum::begin()
@@ -117,113 +283,8 @@ void InvertedPendulum::refresh()
 	encoder.refresh();
 	motor.refresh();
 
-	float pendulumRadian = getPendulumRadian();
-
-	if (mode == Inverted_Pendulum_Mode_Disabled)
-	{
-		resetPID();
-		setTargetBeamRadian(getBeamRadian());
-		motor.setPercent(0);
-	}
-	else if (mode==Inverted_Pendulum_Mode_Swing_Begin)
-	{
-		motor.setPercent(50);
-		if (pendulumRadian < PI/1.5 && pendulumRadian>-PI / 1.5)
-		{
-			setMode(Inverted_Pendulum_Mode_Swing);
-		}
-	}
-	else if (mode == Inverted_Pendulum_Mode_Swing)
-	{
-		refreshSwing();
-		if ((pendulumRadian > PI*0.8 || pendulumRadian < -PI*0.8)
-			&& getBeamPalstance() == 0)
-		{
-			setMode(Inverted_Pendulum_Mode_Swing_Begin);
-		}
-	}
-	else if (mode == Inverted_Pendulum_Mode_Invert)
-	{
-		if (pendulumRadian < enRadThres && pendulumRadian>-enRadThres)
-		{
-			beamPalstancePID.setDesiredPoint(0);
-			refreshPID();
-		}
-		else
-		{
-			resetPID();
-			setTargetBeamRadian(getBeamRadian());
-			motor.setPercent(0);
-		}
-	}
-	else if (mode == Inverted_Pendulum_Mode_Invert_Swing)
-	{
-		if (pendulumRadian < enRadThres && pendulumRadian>-enRadThres)
-		{
-			beamPalstancePID.setDesiredPoint(0);
-			refreshPID();
-		}
-		else
-		{
-			setMode(Inverted_Pendulum_Mode_Swing_Invert);
-		}
-	}
-	else if (mode==Inverted_Pendulum_Mode_Swing_Invert_Begin)
-	{
-		motor.setPercent(50);
-		if (pendulumRadian < PI / 1.5 && pendulumRadian>-PI / 1.5)
-		{
-			setMode(Inverted_Pendulum_Mode_Swing_Invert);
-		}
-	}
-	else if (mode == Inverted_Pendulum_Mode_Swing_Invert)
-	{
-		refreshSwing();
-		if (pendulumRadian < PI / 12 && pendulumRadian>-PI / 12)
-		{
-			setMode(Inverted_Pendulum_Mode_Invert_Swing);
-			resetPID();
-			setTargetBeamRadian(getBeamRadian());
-		}
-		if ((pendulumRadian > PI*0.8 || pendulumRadian < -PI*0.8)
-			&& abs(getBeamPalstance()) < 0.1)
-		{
-			setMode(Inverted_Pendulum_Mode_Swing_Invert_Begin);
-		}
-	}
-	else if (mode == Inverted_Pendulum_Mode_Round)
-	{
-		if (pendulumRadian < enRadThres && pendulumRadian>-enRadThres)
-		{
-			//设置横梁目标速度
-			//对横梁实际角度与目标角度进行判断
-			if (abs(getBeamRadian() - getTargetBeamRadian()) < PI)
-			{
-				setTargetBeamRadian(getTargetBeamRadian() + targetBeamPalstance*refreshInt);
-			}
-			else
-			{
-				if (getBeamRadian() - getTargetBeamRadian() > 0)
-				{
-					setTargetBeamRadian(getBeamRadian() - PI);
-				}
-				else
-				{
-					setTargetBeamRadian(getBeamRadian() + PI);
-				}
-			}
-			beamRadianPID.setDesiredPoint(getTargetBeamRadian());
-			beamPalstancePID.setDesiredPoint(targetBeamPalstance);
-
-			refreshPID();
-		}
-		else
-		{
-			resetPID();
-			setTargetBeamRadian(getBeamRadian());
-			motor.setPercent(0);
-		}
-	}
+	//刷新状态机
+	fsmRefresh();
 }
 
 
@@ -311,7 +372,6 @@ void InvertedPendulum::resetPID()
 void InvertedPendulum::setTargetBeamPalstance(float desiredBeamPalstance)
 {
 	targetBeamPalstance = desiredBeamPalstance;
-	beamPalstancePID.setDesiredPoint(desiredBeamPalstance);
 }
 
 void InvertedPendulum::setTargetBeamRadian(float desiredBeamRadian)

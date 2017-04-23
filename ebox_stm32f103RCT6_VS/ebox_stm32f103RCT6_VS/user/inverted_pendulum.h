@@ -5,7 +5,6 @@
 #include "encoder_motor.h"
 #include "PID.hpp"
 #include "math.h"
-#include "fsm.h"
 
 #define PI		3.14159265358979323846
 #define INF_FLOAT 3.402823466e+38F
@@ -57,19 +56,26 @@ public:
 	float getRadianDiff();
 };
 
+//typedef enum
+//{
+//	Inverted_Pendulum_Mode_Disabled,
+//	Inverted_Pendulum_Mode_Swing_Begin,
+//	Inverted_Pendulum_Mode_Swing,
+//	Inverted_Pendulum_Mode_Invert,
+//	Inverted_Pendulum_Mode_Invert_Swing,//如果Invert状态倒下即跳转到Swing状态
+//	Inverted_Pendulum_Mode_Swing_Invert_Begin,
+//	Inverted_Pendulum_Mode_Swing_Invert,
+//	Inverted_Pendulum_Mode_Round,
+//}Inverted_Pendulum_Mode_Typedef;
+
 typedef enum
 {
 	Inverted_Pendulum_Mode_Disabled,
-	Inverted_Pendulum_Mode_Swing_Begin,
 	Inverted_Pendulum_Mode_Swing,
+	Inverted_Pendulum_Mode_SwingInvert,
 	Inverted_Pendulum_Mode_Invert,
-	Inverted_Pendulum_Mode_Invert_Swing,//如果Invert状态倒下即跳转到Swing状态
-	Inverted_Pendulum_Mode_Swing_Invert_Begin,
-	Inverted_Pendulum_Mode_Swing_Invert,
 	Inverted_Pendulum_Mode_Round,
 }Inverted_Pendulum_Mode_Typedef;
-
-
 
 
 class InvertedPendulum
@@ -79,6 +85,34 @@ class InvertedPendulum
 	int mode;
 	float targetBeamPalstance;
 	float targetBeamRadian;
+
+
+	//有限状态机和状态函数
+	void (InvertedPendulum::*fsmActiveState)();
+	void fsmSetActiveState(void(InvertedPendulum::*activeState)());
+	void fsmRefresh();
+	//失能倒立摆
+	void stateDisabled();
+	//起摆扰动
+	void stateSwingBegin();
+	//倒立
+	void entryInvert();
+	void stateInvert();
+	//旋转
+	void entryRound();
+	void stateRound();
+	//起摆
+	void stateSwing();
+
+	//单独对控制倒立的四个PID进行refresh，包括目标速度的设置
+	void refreshPID();
+
+	//对起摆过程进行反馈
+	void refreshSwing();
+
+	//重置PID累计值
+	void resetPID();
+
 public:
 	greg::PID pendulumRadianPID, beamRadianPID,//角度PID
 		pendulumPalstancePID, beamPalstancePID;//角速度PID
@@ -94,12 +128,6 @@ public:
 
 	//对编码器、电机PID、倒立PID进行刷新
 	void refresh();
-
-	//单独对控制倒立的四个PID进行refresh，包括目标速度的设置
-	void refreshPID();
-
-	//对起摆过程进行反馈
-	void refreshSwing();
 
 	//设置倒立摆模式
 	void setMode(Inverted_Pendulum_Mode_Typedef m);
@@ -121,9 +149,6 @@ public:
 
 	//获取横梁角速度（弧度/秒）
 	float getBeamPalstance();
-
-	//重置PID累计值
-	void resetPID();
 
 	//设置横梁目标角度增量，倒立状态有效
 	void setTargetBeamPalstance(float desiredBeamPalstance);

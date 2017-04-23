@@ -89,7 +89,6 @@
     <ClCompile Include="common\edriver\encoder_motor.cpp" />
     <ClCompile Include="common\edriver\encoder_timer.cpp" />
     <ClCompile Include="common\edriver\fm25v.cpp" />
-    <ClCompile Include="common\edriver\fsm.cpp" />
     <ClCompile Include="common\edriver\FT800.cpp" />
     <ClCompile Include="common\edriver\GP2Y1051.cpp" />
     <ClCompile Include="common\edriver\ir_decoder.cpp" />
@@ -213,7 +212,6 @@
     <ClInclude Include="common\edriver\encoder_timer.h" />
     <ClInclude Include="common\edriver\fm25v.h" />
     <ClInclude Include="common\edriver\font.h" />
-    <ClInclude Include="common\edriver\fsm.h" />
     <ClInclude Include="common\edriver\FT800.h" />
     <ClInclude Include="common\edriver\GP2Y1051.h" />
     <ClInclude Include="common\edriver\ir_decoder.h" />

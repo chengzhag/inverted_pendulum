@@ -69,8 +69,8 @@ void setup()
 	led1.begin();
 
 	invertedPendulum.begin();
-	invertedPendulum.setMode(Inverted_Pendulum_Mode_Disabled);
-	//invertedPendulum.setTargetBeamPalstance(0);
+	invertedPendulum.setMode(Inverted_Pendulum_Mode_Round);
+	invertedPendulum.setTargetBeamPalstance(2);
 
 	//ÉèÖÃRTOS½ø³Ì
 	set_systick_user_event_per_sec(configTICK_RATE_HZ);
