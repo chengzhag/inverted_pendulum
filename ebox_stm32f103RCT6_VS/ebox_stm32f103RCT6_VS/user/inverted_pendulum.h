@@ -56,18 +56,6 @@ public:
 	float getRadianDiff();
 };
 
-//typedef enum
-//{
-//	Inverted_Pendulum_Mode_Disabled,
-//	Inverted_Pendulum_Mode_Swing_Begin,
-//	Inverted_Pendulum_Mode_Swing,
-//	Inverted_Pendulum_Mode_Invert,
-//	Inverted_Pendulum_Mode_Invert_Swing,//如果Invert状态倒下即跳转到Swing状态
-//	Inverted_Pendulum_Mode_Swing_Invert_Begin,
-//	Inverted_Pendulum_Mode_Swing_Invert,
-//	Inverted_Pendulum_Mode_Round,
-//}Inverted_Pendulum_Mode_Typedef;
-
 typedef enum
 {
 	Inverted_Pendulum_Mode_Disabled,

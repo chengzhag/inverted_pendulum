@@ -139,6 +139,7 @@ void InvertedPendulum::stateInvert()
 	}
 	if (mode == Inverted_Pendulum_Mode_Round)
 	{
+		entryRound();
 		fsmSetActiveState(&InvertedPendulum::stateRound);
 	}
 	if (mode == Inverted_Pendulum_Mode_SwingInvert
@@ -153,6 +154,7 @@ void InvertedPendulum::entryRound()
 {
 	resetPID();
 	setTargetBeamRadian(getBeamRadian());
+	setTargetBeamPalstance(2);
 }
 
 void InvertedPendulum::stateRound()
@@ -182,9 +184,10 @@ void InvertedPendulum::stateRound()
 	refreshPID();
 
 	//跳转
-	if (mode == Inverted_Pendulum_Mode_Round)
+	if (mode == Inverted_Pendulum_Mode_Invert)
 	{
-		fsmSetActiveState(&InvertedPendulum::stateRound);
+		entryInvert();
+		fsmSetActiveState(&InvertedPendulum::stateInvert);
 	}
 	if ((mode == Inverted_Pendulum_Mode_Round
 		//conditionRoundToDisabled
@@ -216,7 +219,8 @@ void InvertedPendulum::stateSwing()
 	}
 	if (mode == Inverted_Pendulum_Mode_SwingInvert
 		//conditionSwingToInvert
-		&& pendulumRadian < PI / 12 && pendulumRadian>-PI / 12
+		//&&(getBeamPalstance())
+		&& pendulumRadian < PI / 8 && pendulumRadian>-PI / 8
 		)
 	{
 		entryInvert();
@@ -261,8 +265,8 @@ void InvertedPendulum::begin()
 	//初始化横梁角度PID
 	beamRadianPID.setRefreshInterval(refreshInt);
 	//beamRadianPID.setWeights(200, 100, 0);//反应快PID
-	beamRadianPID.setWeights(60, 40, 0);//抗击打PID
-	//beamRadianPID.setWeights(0, 0, 0);
+	//beamRadianPID.setWeights(60, 40, 0);//抗击打PID
+	beamRadianPID.setWeights(60, 40, 0);
 	beamRadianPID.setOutputLowerLimit(-INF_FLOAT);
 	beamRadianPID.setOutputUpperLimit(INF_FLOAT);
 	beamRadianPID.setDesiredPoint(0);
@@ -271,7 +275,7 @@ void InvertedPendulum::begin()
 	beamPalstancePID.setRefreshInterval(refreshInt);
 	//beamPalstancePID.setWeights(6, 10, 0);//反应快PID
 	beamPalstancePID.setWeights(1, 0.1, 0);//抗击打PID
-	//beamPalstancePID.setWeights(0, 0, 0);
+	//beamPalstancePID.setWeights(3, 1, 0);
 	beamPalstancePID.setOutputLowerLimit(-INF_FLOAT);
 	beamPalstancePID.setOutputUpperLimit(INF_FLOAT);
 	beamPalstancePID.setDesiredPoint(0);
@@ -314,6 +318,15 @@ void InvertedPendulum::refreshSwing()
 	float pendulumAcceleration = getPendulumAcceleration();
 	//正反馈控制起摆
 	motorPercent -= 0.5*pendulumAcceleration;
+	//限幅
+	if (motorPercent>50)
+	{
+		motorPercent = 50;
+	}
+	else if (motorPercent<-50)
+	{
+		motorPercent = -50;
+	}
 	//输出横梁角度增量
 	motor.setPercent(motorPercent);
 }
