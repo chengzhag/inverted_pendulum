@@ -274,8 +274,8 @@ void InvertedPendulum::begin()
 	//初始化横梁角速度PID
 	beamPalstancePID.setRefreshInterval(refreshInt);
 	//beamPalstancePID.setWeights(6, 10, 0);//反应快PID
-	beamPalstancePID.setWeights(1, 0.1, 0);//抗击打PID
-	//beamPalstancePID.setWeights(3, 1, 0);
+	//beamPalstancePID.setWeights(1, 0.1, 0);//抗击打PID
+	beamPalstancePID.setWeights(3, 6, 0);
 	beamPalstancePID.setOutputLowerLimit(-INF_FLOAT);
 	beamPalstancePID.setOutputUpperLimit(INF_FLOAT);
 	beamPalstancePID.setDesiredPoint(0);
