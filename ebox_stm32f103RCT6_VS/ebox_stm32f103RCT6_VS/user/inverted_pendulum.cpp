@@ -178,8 +178,6 @@ void InvertedPendulum::stateRound()
 			setTargetBeamRadian(getBeamRadian() + PI);
 		}
 	}
-	beamRadianPID.setDesiredPoint(getTargetBeamRadian());
-	beamPalstancePID.setDesiredPoint(targetBeamPalstance);
 
 	refreshPID();
 
@@ -219,7 +217,6 @@ void InvertedPendulum::stateSwing()
 	}
 	if (mode == Inverted_Pendulum_Mode_SwingInvert
 		//conditionSwingToInvert
-		//&&(getBeamPalstance())
 		&& pendulumRadian < PI / 8 && pendulumRadian>-PI / 8
 		)
 	{
@@ -391,6 +388,7 @@ void InvertedPendulum::resetPID()
 void InvertedPendulum::setTargetBeamPalstance(float desiredBeamPalstance)
 {
 	targetBeamPalstance = desiredBeamPalstance;
+	beamPalstancePID.setDesiredPoint(desiredBeamPalstance);
 }
 
 void InvertedPendulum::setTargetBeamRadian(float desiredBeamRadian)
