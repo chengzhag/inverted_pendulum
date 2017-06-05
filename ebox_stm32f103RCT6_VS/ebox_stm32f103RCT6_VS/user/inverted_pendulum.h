@@ -5,6 +5,7 @@
 #include "encoder_motor.h"
 #include "PID.hpp"
 #include "math.h"
+#include "fsm.h"
 
 #define PI		3.14159265358979323846
 #define INF_FLOAT 3.402823466e+38F
@@ -38,7 +39,6 @@ public:
 class MotorBeam :public EncoderMotor
 {
 	unsigned int npr;//每圈pos的增量
-
 public:
 
 	//横梁电机，可以获取以弧度为单位的相对角度值
@@ -66,6 +66,7 @@ typedef enum
 }Inverted_Pendulum_Mode_Typedef;
 
 
+
 class InvertedPendulum
 {
 	float refreshInt;
@@ -73,24 +74,52 @@ class InvertedPendulum
 	int mode;
 	float targetBeamPalstance;
 	float targetBeamRadian;
-
+	float pendulumRadian;
 
 	//有限状态机和状态函数
-	void (InvertedPendulum::*fsmActiveState)();
-	void fsmSetActiveState(void(InvertedPendulum::*activeState)());
-	void fsmRefresh();
+	FiniteStateMachine fsm;
+	
 	//失能倒立摆
-	void stateDisabled();
+	void workDisabled();
+	FiniteStateMachineState stateDisabled;
+	FiniteStateMachineTrans transDisabledToSwingBegin,
+		transDisabledToInvert, transDisabledToRound;
+	bool conditionDisabledToSwingBegin(int event);
+	bool conditionDisabledToInvert(int event);
+	bool conditionDisabledToRound(int event);
+
 	//起摆扰动
-	void stateSwingBegin();
+	void workSwingBegin();
+	FiniteStateMachineState stateSwingBegin;
+	FiniteStateMachineTrans transSwingBeginToSwing,
+		transSwingBeginToDisabled;
+	bool conditionSwingBeginToSwing(int event);
+	bool conditionSwingBeginToDisabled(int event);
 	//倒立
 	void entryInvert();
-	void stateInvert();
+	void workInvert();
+	FiniteStateMachineState stateInvert;
+	FiniteStateMachineTrans transInvertToDisabled, 
+		transInvertToRound, transInvertToSwing;
+	bool conditionInvertToDisabled(int event);
+	bool conditionInvertToRound(int event);
+	bool conditionInvertToSwing(int event);
 	//旋转
 	void entryRound();
-	void stateRound();
+	void workRound();
+	FiniteStateMachineState stateRound;
+	FiniteStateMachineTrans transRoundToInvert,
+		transRoundToDisabled;
+	bool conditionRoundToInvert(int event);
+	bool conditionRoundToDisabled(int event);
 	//起摆
-	void stateSwing();
+	void workSwing();
+	FiniteStateMachineState stateSwing;
+	FiniteStateMachineTrans transSwingToDisabled,
+		transSwingToSwingBegin, transSwingToInvert;
+	bool conditionSwingToDisabled(int event);
+	bool conditionSwingToSwingBegin(int event);
+	bool conditionSwingToInvert(int event);
 
 	//单独对控制倒立的四个PID进行refresh，包括目标速度的设置
 	void refreshPID();

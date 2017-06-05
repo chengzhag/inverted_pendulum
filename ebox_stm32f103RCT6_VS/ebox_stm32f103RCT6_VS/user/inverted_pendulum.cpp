@@ -58,63 +58,46 @@ float MotorBeam::getRadianDiff()
 }
 
 
-void InvertedPendulum::fsmSetActiveState(void(InvertedPendulum::*activeState)())
-{
-	fsmActiveState = activeState;
-}
 
-void InvertedPendulum::fsmRefresh()
-{
-	if (fsmActiveState != NULL)
-	{
-		(this->*fsmActiveState)();
-	}
-}
 
-void InvertedPendulum::stateDisabled()
+void InvertedPendulum::workDisabled()
 {
 	motor.setPercent(0);
-	float pendulumRadian = getPendulumRadian();
-
-	//跳转
-	if ((mode == Inverted_Pendulum_Mode_Swing
-		|| mode == Inverted_Pendulum_Mode_SwingInvert))
-	{
-		fsmSetActiveState(&InvertedPendulum::stateSwingBegin);
-	}
-	if (mode == Inverted_Pendulum_Mode_Invert
-		//conditionDisabledToInvert
-		&& (pendulumRadian < enRadThres && pendulumRadian>-enRadThres))
-	{
-		entryInvert();
-		fsmSetActiveState(&InvertedPendulum::stateInvert);
-	}
-	if (mode == Inverted_Pendulum_Mode_Round
-		//conditionDisabledToRound
-		&& (pendulumRadian < enRadThres && pendulumRadian>-enRadThres))
-	{
-		entryRound();
-		fsmSetActiveState(&InvertedPendulum::stateRound);
-	}
+	pendulumRadian = getPendulumRadian();
 }
 
-void InvertedPendulum::stateSwingBegin()
+bool InvertedPendulum::conditionDisabledToSwingBegin(int event)
+{
+	return (event == Inverted_Pendulum_Mode_Swing || event == Inverted_Pendulum_Mode_SwingInvert);
+}
+
+bool InvertedPendulum::conditionDisabledToInvert(int event)
+{
+	return (event == Inverted_Pendulum_Mode_Invert
+		&& (pendulumRadian < enRadThres && pendulumRadian>-enRadThres));
+}
+
+bool InvertedPendulum::conditionDisabledToRound(int event)
+{
+	return (event == Inverted_Pendulum_Mode_Round
+		&& (pendulumRadian < enRadThres && pendulumRadian>-enRadThres));
+}
+
+void InvertedPendulum::workSwingBegin()
 {
 	motor.setPercent(50);
-	float pendulumRadian = getPendulumRadian();
+	pendulumRadian = getPendulumRadian();
+}
 
-	//跳转
-	if ((mode == Inverted_Pendulum_Mode_Swing
-		|| mode == Inverted_Pendulum_Mode_SwingInvert)
-		//conditionBeginToSwing
-		&& (pendulumRadian < PI / 1.5 && pendulumRadian>-PI / 1.5))
-	{
-		fsmSetActiveState(&InvertedPendulum::stateSwing);
-	}
-	if (mode == Inverted_Pendulum_Mode_Disabled)
-	{
-		fsmSetActiveState(&InvertedPendulum::stateDisabled);
-	}
+bool InvertedPendulum::conditionSwingBeginToSwing(int event)
+{
+	return ((event == Inverted_Pendulum_Mode_Swing || event == Inverted_Pendulum_Mode_SwingInvert)
+		&& (pendulumRadian < PI / 1.5 && pendulumRadian>-PI / 1.5));
+}
+
+bool InvertedPendulum::conditionSwingBeginToDisabled(int event)
+{
+	return (event == Inverted_Pendulum_Mode_Disabled);
 }
 
 void InvertedPendulum::entryInvert()
@@ -124,30 +107,28 @@ void InvertedPendulum::entryInvert()
 	setTargetBeamPalstance(0);
 }
 
-void InvertedPendulum::stateInvert()
+void InvertedPendulum::workInvert()
 {
 	refreshPID();
-	float pendulumRadian = getPendulumRadian();
+	pendulumRadian = getPendulumRadian();
+}
 
-	//跳转
-	if ((mode == Inverted_Pendulum_Mode_Invert
-		//conditionInvertToDisabled
+bool InvertedPendulum::conditionInvertToDisabled(int event)
+{
+	return ((event == Inverted_Pendulum_Mode_Invert
 		&& (pendulumRadian >= enRadThres || pendulumRadian <= -enRadThres))
-		|| mode == Inverted_Pendulum_Mode_Disabled)
-	{
-		fsmSetActiveState(&InvertedPendulum::stateDisabled);
-	}
-	if (mode == Inverted_Pendulum_Mode_Round)
-	{
-		entryRound();
-		fsmSetActiveState(&InvertedPendulum::stateRound);
-	}
-	if (mode == Inverted_Pendulum_Mode_SwingInvert
-		//conditionInvertToSwing
-		&& (pendulumRadian >= enRadThres || pendulumRadian <= -enRadThres))
-	{
-		fsmSetActiveState(&InvertedPendulum::stateSwing);
-	}
+		|| event == Inverted_Pendulum_Mode_Disabled);
+}
+
+bool InvertedPendulum::conditionInvertToRound(int event)
+{
+	return (event == Inverted_Pendulum_Mode_Round);
+}
+
+bool InvertedPendulum::conditionInvertToSwing(int event)
+{
+	return (event == Inverted_Pendulum_Mode_SwingInvert
+		&& (pendulumRadian >= enRadThres || pendulumRadian <= -enRadThres));
 }
 
 void InvertedPendulum::entryRound()
@@ -157,9 +138,9 @@ void InvertedPendulum::entryRound()
 	setTargetBeamPalstance(2);
 }
 
-void InvertedPendulum::stateRound()
+void InvertedPendulum::workRound()
 {
-	float pendulumRadian = getPendulumRadian();
+	pendulumRadian = getPendulumRadian();
 
 	//设置横梁目标速度
 	//对横梁实际角度与目标角度进行判断
@@ -180,52 +161,68 @@ void InvertedPendulum::stateRound()
 	}
 
 	refreshPID();
-
-	//跳转
-	if (mode == Inverted_Pendulum_Mode_Invert)
-	{
-		entryInvert();
-		fsmSetActiveState(&InvertedPendulum::stateInvert);
-	}
-	if ((mode == Inverted_Pendulum_Mode_Round
-		//conditionRoundToDisabled
-		&& (pendulumRadian >= enRadThres || pendulumRadian <= -enRadThres))
-		|| mode == Inverted_Pendulum_Mode_Disabled)
-	{
-		fsmSetActiveState(&InvertedPendulum::stateDisabled);
-	}
 }
 
-void InvertedPendulum::stateSwing()
+bool InvertedPendulum::conditionRoundToInvert(int event)
+{
+	return (event == Inverted_Pendulum_Mode_Invert);
+}
+
+bool InvertedPendulum::conditionRoundToDisabled(int event)
+{
+	return ((event == Inverted_Pendulum_Mode_Round
+		&& (pendulumRadian >= enRadThres || pendulumRadian <= -enRadThres))
+		|| event == Inverted_Pendulum_Mode_Disabled);
+}
+
+void InvertedPendulum::workSwing()
 {
 	refreshSwing();
-	float pendulumRadian = getPendulumRadian();
-
-	//跳转
-	if (mode == Inverted_Pendulum_Mode_Disabled)
-	{
-		fsmSetActiveState(&InvertedPendulum::stateDisabled);
-	}
-	if ((mode == Inverted_Pendulum_Mode_Swing
-		|| mode == Inverted_Pendulum_Mode_SwingInvert)
-		//conditionSwingToBegin
-		&& ((pendulumRadian > PI*0.8 || pendulumRadian < -PI*0.8)
-			&& abs(getBeamPalstance()) < 0.1)
-		)
-	{
-		fsmSetActiveState(&InvertedPendulum::stateSwingBegin);
-	}
-	if (mode == Inverted_Pendulum_Mode_SwingInvert
-		//conditionSwingToInvert
-		&& pendulumRadian < PI / 8 && pendulumRadian>-PI / 8
-		)
-	{
-		entryInvert();
-		fsmSetActiveState(&InvertedPendulum::stateInvert);
-	}
+	pendulumRadian = getPendulumRadian();
 }
 
-InvertedPendulum::InvertedPendulum(TIM_TypeDef *TIMpendulum, 
+////衔接链表末尾的state初始化方式，必须注意初始化顺序是按声明顺序！！！
+//InvertedPendulum::InvertedPendulum(TIM_TypeDef *TIMpendulum,
+//	TIM_TypeDef *TIMmotor, Gpio *motorPinA, Gpio *motorPinB, Gpio *motorPinPwm,
+//	unsigned int nprPendulum /*= 2000*/, unsigned int nprMotor /*= 1560*/, float refreshInterval /*= 0.005*/) :
+//	encoder(TIMpendulum, nprPendulum),
+//	motor(TIMmotor, motorPinA, motorPinB, motorPinPwm,
+//		nprMotor, Encoder_Motor_PID_Disabled, refreshInterval),
+//	refreshInt(refreshInterval),
+//	enRadThres(PI / 3),
+//	mode(Inverted_Pendulum_Mode_Disabled),
+//	targetBeamPalstance(0),
+//	targetBeamRadian(0),
+//	//初始化有限向量机
+//	fsm(&stateDisabled),
+//	//初始化stateDisabled的转出列表
+//	transDisabledToSwingBegin(this, &InvertedPendulum::conditionDisabledToSwingBegin, &stateSwingBegin),
+//	transDisabledToInvert(this, &InvertedPendulum::conditionDisabledToInvert, &stateInvert, &transDisabledToSwingBegin),
+//	transDisabledToRound(this, &InvertedPendulum::conditionDisabledToRound, &stateRound, &transDisabledToInvert),
+//	stateDisabled(this, &InvertedPendulum::workDisabled, NULL, NULL, &transDisabledToSwingBegin),
+//	//初始化stateSwingBegin的转出列表
+//	transSwingBeginToSwing(this, &InvertedPendulum::conditionSwingBeginToSwing, &stateSwing),
+//	transSwingBeginToDisabled(this, &InvertedPendulum::conditionSwingToDisabled, &stateDisabled, &transSwingBeginToSwing),
+//	stateSwingBegin(this, &InvertedPendulum::workSwingBegin, NULL, NULL, &transSwingBeginToSwing),
+//	//初始化stateInvert的转出列表
+//	transInvertToDisabled(this, &InvertedPendulum::conditionInvertToDisabled, &stateDisabled),
+//	transInvertToRound(this, &InvertedPendulum::conditionInvertToRound, &stateRound, &transInvertToDisabled),
+//	transInvertToSwing(this, &InvertedPendulum::conditionInvertToSwing, &stateSwing, &transInvertToRound),
+//	stateInvert(this, &InvertedPendulum::workInvert, &InvertedPendulum::entryInvert, NULL, &transInvertToDisabled),
+//	//初始化stateRound的转出列表
+//	transRoundToInvert(this, &InvertedPendulum::conditionRoundToInvert, &stateInvert),
+//	transRoundToDisabled(this, &InvertedPendulum::conditionRoundToDisabled, &stateDisabled, &transRoundToInvert),
+//	stateRound(this, &InvertedPendulum::workRound, &InvertedPendulum::entryRound, NULL, &transRoundToInvert),
+//	//初始化stateSwing的转出列表
+//	transSwingToDisabled(this, &InvertedPendulum::conditionSwingToDisabled, &stateDisabled),
+//	transSwingToSwingBegin(this, &InvertedPendulum::conditionSwingToSwingBegin, &stateSwingBegin, &transSwingToDisabled),
+//	transSwingToInvert(this, &InvertedPendulum::conditionSwingToInvert, &stateInvert, &transSwingToSwingBegin),
+//	stateSwing(this, &InvertedPendulum::workSwing, NULL, NULL, &transSwingToDisabled)
+//{
+//
+//}
+
+InvertedPendulum::InvertedPendulum(TIM_TypeDef *TIMpendulum,
 	TIM_TypeDef *TIMmotor, Gpio *motorPinA, Gpio *motorPinB, Gpio *motorPinPwm,
 	unsigned int nprPendulum /*= 2000*/, unsigned int nprMotor /*= 1560*/, float refreshInterval /*= 0.005*/) :
 	encoder(TIMpendulum, nprPendulum),
@@ -235,9 +232,47 @@ InvertedPendulum::InvertedPendulum(TIM_TypeDef *TIMpendulum,
 	enRadThres(PI / 3),
 	mode(Inverted_Pendulum_Mode_Disabled),
 	targetBeamPalstance(0),
-	targetBeamRadian(0)
+	targetBeamRadian(0),
+	//初始化有限向量机
+	fsm(&stateDisabled),
+	//初始化stateDisabled的转出列表
+	transDisabledToSwingBegin(this, &InvertedPendulum::conditionDisabledToSwingBegin, &stateSwingBegin),
+	transDisabledToInvert(this, &InvertedPendulum::conditionDisabledToInvert, &stateInvert),
+	transDisabledToRound(this, &InvertedPendulum::conditionDisabledToRound, &stateRound),
+	stateDisabled(this, &InvertedPendulum::workDisabled, NULL, NULL),
+	//初始化stateSwingBegin的转出列表
+	transSwingBeginToSwing(this, &InvertedPendulum::conditionSwingBeginToSwing, &stateSwing),
+	transSwingBeginToDisabled(this, &InvertedPendulum::conditionSwingToDisabled, &stateDisabled),
+	stateSwingBegin(this, &InvertedPendulum::workSwingBegin, NULL, NULL),
+	//初始化stateInvert的转出列表
+	transInvertToDisabled(this, &InvertedPendulum::conditionInvertToDisabled, &stateDisabled),
+	transInvertToRound(this, &InvertedPendulum::conditionInvertToRound, &stateRound),
+	transInvertToSwing(this, &InvertedPendulum::conditionInvertToSwing, &stateSwing),
+	stateInvert(this, &InvertedPendulum::workInvert, &InvertedPendulum::entryInvert, NULL),
+	//初始化stateRound的转出列表
+	transRoundToInvert(this, &InvertedPendulum::conditionRoundToInvert, &stateInvert),
+	transRoundToDisabled(this, &InvertedPendulum::conditionRoundToDisabled, &stateDisabled),
+	stateRound(this, &InvertedPendulum::workRound, &InvertedPendulum::entryRound, NULL),
+	//初始化stateSwing的转出列表
+	transSwingToDisabled(this, &InvertedPendulum::conditionSwingToDisabled, &stateDisabled),
+	transSwingToSwingBegin(this, &InvertedPendulum::conditionSwingToSwingBegin, &stateSwingBegin),
+	transSwingToInvert(this, &InvertedPendulum::conditionSwingToInvert, &stateInvert),
+	stateSwing(this, &InvertedPendulum::workSwing, NULL, NULL)
 {
-	fsmSetActiveState(&InvertedPendulum::stateDisabled);
+	//用addTransItem方法添加转出列表项，不用考虑链表顺序
+	stateDisabled.addTransItem(&transDisabledToSwingBegin);
+	stateDisabled.addTransItem(&transDisabledToInvert);
+	stateDisabled.addTransItem(&transDisabledToRound);
+	stateSwingBegin.addTransItem(&transSwingBeginToSwing);
+	stateSwingBegin.addTransItem(&transSwingBeginToDisabled);
+	stateInvert.addTransItem(&transInvertToSwing);
+	stateInvert.addTransItem(&transInvertToRound);
+	stateInvert.addTransItem(&transInvertToDisabled);
+	stateRound.addTransItem(&transRoundToDisabled);
+	stateRound.addTransItem(&transRoundToInvert);
+	stateSwing.addTransItem(&transSwingToDisabled);
+	stateSwing.addTransItem(&transSwingToSwingBegin);
+	stateSwing.addTransItem(&transSwingToInvert);
 }
 
 void InvertedPendulum::begin()
@@ -283,11 +318,42 @@ void InvertedPendulum::refresh()
 	//刷新编码器和电机位置PID
 	encoder.refresh();
 	motor.refresh();
-
+	pendulumRadian = getPendulumRadian();
 	//刷新状态机
-	fsmRefresh();
+	fsm.refresh(mode);
 }
 
+
+bool InvertedPendulum::conditionSwingToDisabled(int event)
+{
+	if (event == Inverted_Pendulum_Mode_Disabled)
+	{
+		return true;
+	}
+	return false;
+}
+
+bool InvertedPendulum::conditionSwingToSwingBegin(int event)
+{
+	if ((event == Inverted_Pendulum_Mode_Swing
+		|| event == Inverted_Pendulum_Mode_SwingInvert)
+		&& ((pendulumRadian > PI*0.8 || pendulumRadian < -PI*0.8)
+			&& abs(getBeamPalstance()) < 0.1))
+	{
+		return true;
+	}
+	return false;
+}
+
+bool InvertedPendulum::conditionSwingToInvert(int event)
+{
+	if (event == Inverted_Pendulum_Mode_SwingInvert
+		&& pendulumRadian < PI / 8 && pendulumRadian>-PI / 8)
+	{
+		return true;
+	}
+	return false;
+}
 
 void InvertedPendulum::refreshPID()
 {
